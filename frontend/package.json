@@ -6,6 +6,7 @@
     "postinstall": "node scripts/copy-static-assets.mjs",
     "predev": "node scripts/copy-static-assets.mjs",
     "dev": "next dev",
+    "dev:clean": "rm -rf .next/dev && npm run dev",
     "prebuild": "node scripts/copy-static-assets.mjs",
     "build": "next build",
     "start": "next start",
