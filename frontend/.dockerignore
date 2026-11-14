@@ -1,0 +1,5 @@
+node_modules
+.next
+public/cesium
+.env*
+.DS_Store
