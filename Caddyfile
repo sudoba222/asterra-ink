@@ -1,0 +1,12 @@
+asterra.ink {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+www.asterra.ink {
+	redir https://asterra.ink{uri} permanent
+}
+
+api.asterra.ink {
+	reverse_proxy api:8000
+}
