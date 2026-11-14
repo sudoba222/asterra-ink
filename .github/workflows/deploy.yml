@@ -1,0 +1,36 @@
+name: deploy
+
+# Every push to main updates asterra.ink on the Hetzner server.
+# Can also be started by hand: Actions -> deploy -> Run workflow.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never run two deploys at the same time; a newer one waits for the older one.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Deploy over SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Server host key, pinned (fingerprint SHA256:5nOnh/N1ucO1nU0PVJChqr/Vg05R8PkCbEDg/IisbPo)
+          echo "46.62.241.6 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDMzMLJOx4GwclV9+Dfk+8b6g6nnjZ5SxldvTPPBid+4" > ~/.ssh/known_hosts
+          # The key may only run /usr/local/bin/asterra-deploy on the server (forced command).
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes root@46.62.241.6
+
+      - name: Check the site answers
+        run: |
+          sleep 10
+          curl -fsS --retry 10 --retry-delay 6 --retry-all-errors -o /dev/null https://asterra.ink
+          curl -fsS --retry 10 --retry-delay 6 --retry-all-errors https://api.asterra.ink/api/v1/health
