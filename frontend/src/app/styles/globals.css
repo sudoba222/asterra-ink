@@ -24,6 +24,13 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
+  /*
+   * Field view: map beside the details instead of above them. Driven by the real
+   * viewport width (not device size), so a 14" laptop, a 15" laptop and a resized
+   * window all get the same layout at the same width.
+   */
+  --breakpoint-split: 48rem;
+
   --radius-card: 20px;
   --shadow-card: 0 1px 0 rgba(16, 37, 30, 0.04), 0 8px 24px -12px rgba(16, 37, 30, 0.12);
   --shadow-float: 0 12px 40px -12px rgba(5, 15, 11, 0.55);
@@ -43,7 +50,14 @@
 
 :root {
   color-scheme: light;
-  --globe-split: 44%;
+  /* Width of the map column in the split field view. Narrower windows give the details more room. */
+  --globe-split: 40%;
+}
+
+@media (width >= 80rem) {
+  :root {
+    --globe-split: 44%;
+  }
 }
 
 html,

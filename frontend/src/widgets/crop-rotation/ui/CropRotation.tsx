@@ -57,7 +57,7 @@ export function CropRotation({ profile }: { profile: EnvironmentalProfile }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="grid grid-cols-1 gap-3 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <Card>
           <div className="mb-4 flex items-center gap-2">
             <ClipboardList className="size-4 text-forest" aria-hidden />
@@ -169,7 +169,7 @@ function CandidateRow({ c, rank }: { c: CandidateResult; rank?: number }) {
               {c.crop.familyLabel} · season {c.seasonLabel} · {c.crop.waterNeed} water need
             </span>
           </span>
-          <span className={cn("hidden items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium sm:inline-flex", st.cls)}>
+          <span className={cn("hidden items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium @md:inline-flex", st.cls)}>
             <Icon className="size-3.5" aria-hidden /> {st.label}
           </span>
           <ChevronDown className={cn("size-4 text-ink-faint transition-transform", open && "rotate-180")} aria-hidden />
