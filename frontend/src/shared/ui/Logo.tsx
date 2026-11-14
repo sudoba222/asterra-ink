@@ -1,6 +1,10 @@
 import { cn } from "@/shared/lib";
 
-/** ASTERRA mark: an orbit ring around a sprouting leaf. */
+/**
+ * ASTERRA mark: an orbit ring around a sprouting leaf.
+ * The browser icons (app/icon.svg, app/favicon.ico, app/apple-icon.png) are this same
+ * artwork — update them together if the mark changes.
+ */
 export function Logo({
   className,
   dark = true,
