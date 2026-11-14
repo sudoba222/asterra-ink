@@ -3,6 +3,8 @@
  * Copies browser-only static assets into /public (all git-ignored):
  *   public/cesium  ← cesium/Build/Cesium (Cesium.js, Workers, Assets, ThirdParty, Widgets)
  *   public/geo     ← world-countries/data/<iso3>.geo.json (simplified, rounded)
+ *   public/geo/index.json ← per-country polygon bounding boxes, used to find the
+ *                    country under a click on the globe without loading every border
  *   public/flags   ← world-countries/data/<iso3>.svg
  *
  * Runs on postinstall / predev / prebuild and skips work when up to date.
@@ -75,16 +77,36 @@ function simplifyGeometry(geom) {
   return geom;
 }
 
+/** [west, south, east, north] of each polygon's outer ring, rounded outward to 0.01°. */
+function polygonBoxes(geom) {
+  const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.type === "MultiPolygon" ? geom.coordinates : [];
+  const boxes = [];
+  for (const poly of polys) {
+    const ring = poly[0];
+    if (!ring || ring.length < 4) continue;
+    let w = 180, s = 90, e = -180, n = -90;
+    for (const [x, y] of ring) {
+      if (x < w) w = x;
+      if (x > e) e = x;
+      if (y < s) s = y;
+      if (y > n) n = y;
+    }
+    boxes.push([Math.floor(w * 100) / 100, Math.floor(s * 100) / 100, Math.ceil(e * 100) / 100, Math.ceil(n * 100) / 100]);
+  }
+  return boxes;
+}
+
 function copyCountries() {
   const dir = pkgDir("world-countries");
   const { version } = JSON.parse(readFileSync(path.join(dir, "package.json"), "utf8"));
   const geoOut = path.join(pub, "geo");
   const flagOut = path.join(pub, "flags");
-  const key = `${version}-p${PRECISION}-t${TOLERANCE}`;
+  const key = `${version}-p${PRECISION}-t${TOLERANCE}-idx1`;
   if (stamp(geoOut, key) && stamp(flagOut, version)) return console.log(`[assets] countries ${version} up to date`);
   mkdirSync(geoOut, { recursive: true });
   mkdirSync(flagOut, { recursive: true });
   const data = path.join(dir, "data");
+  const index = [];
   let n = 0;
   for (const file of readdirSync(data)) {
     const iso3 = file.slice(0, 3).toUpperCase();
@@ -95,11 +117,14 @@ function copyCountries() {
         .map((f) => ({ type: "Feature", properties: {}, geometry: simplifyGeometry(f.geometry) }));
       if (features.length === 0) continue;
       writeFileSync(path.join(geoOut, `${iso3}.json`), JSON.stringify({ type: "FeatureCollection", features }));
+      const boxes = features.flatMap((f) => polygonBoxes(f.geometry));
+      if (boxes.length) index.push({ iso3, boxes });
       n++;
     } else if (file.endsWith(".svg")) {
       cpSync(path.join(data, file), path.join(flagOut, `${iso3}.svg`));
     }
   }
+  writeFileSync(path.join(geoOut, "index.json"), JSON.stringify(index));
   writeStamp(geoOut, key);
   writeStamp(flagOut, version);
   console.log(`[assets] wrote ${n} country geometries → public/geo, flags → public/flags`);

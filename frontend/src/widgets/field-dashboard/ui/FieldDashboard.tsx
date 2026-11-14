@@ -4,7 +4,7 @@ import { ArrowLeft, Droplets, Leaf, RefreshCw, Sprout, Thermometer, WifiOff } fr
 import { motion } from "motion/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { formatHectares, type Field } from "@/entities/field";
+import { formatHectares, placeLabel, type Field } from "@/entities/field";
 import { shortDate, useFieldConditions } from "@/entities/field-conditions";
 import { Skeleton, StateMessage } from "@/shared/ui";
 import { MoreDetails } from "./MoreDetails";
@@ -14,7 +14,7 @@ import { StatusCard } from "./StatusCard";
 /** The simple farmer view: one recommendation, four cards, everything else in "More details". */
 export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode }) {
   const { status, data, error, retry } = useFieldConditions(field.polygon);
-  const place = [field.districtName, field.regionName].filter(Boolean).join(", ");
+  const place = placeLabel(field);
 
   return (
     <motion.div

@@ -4,7 +4,9 @@ import type { Viewer } from "cesium";
 import { useEffect, useRef } from "react";
 import { OVERVIEW_VIEW, useRegisterMap } from "@/entities/map";
 import { BASEMAP, HIGH_RES_IMAGERY } from "@/entities/satellite-layer";
+import { attachTrackpadNavigation } from "@/features/navigate-globe";
 import { loadCesium, supportsWebGL, type CesiumModule } from "@/shared/lib/cesium";
+import { createSpaceSkyBox } from "../lib/space-sky";
 
 export interface GlobeViewerProps {
   spin: boolean;
@@ -15,7 +17,8 @@ export interface GlobeViewerProps {
 
 /**
  * Creates the one Cesium viewer (no Cesium ion), sets up NASA + high-resolution
- * imagery and publishes it through MapProvider. Feature behaviour (fly-to, outlines,
+ * imagery, a black space backdrop (procedural stars + distant planets, real sun/moon,
+ * Cesium's sky atmosphere) and touchpad navigation, then publishes it through MapProvider. Feature behaviour (fly-to, outlines,
  * drawing, layers) lives in entities/map and features/*.
  */
 export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: GlobeViewerProps) {
@@ -31,6 +34,7 @@ export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: G
 
   useEffect(() => {
     let disposed = false;
+    let detachNavigation: (() => void) | null = null;
     const container = containerRef.current;
     if (!container) return;
     if (!supportsWebGL()) {
@@ -57,14 +61,18 @@ export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: G
           selectionIndicator: false,
           timeline: false,
           navigationHelpButton: false,
-          skyBox: false,
+          skyBox: createSpaceSkyBox(Cesium), // also gives the scene Cesium's real-position sun and moon
           requestRenderMode: true,
           maximumRenderTimeChange: Infinity,
-          contextOptions: { webgl: { alpha: true } },
         });
         viewerRef.current = viewer;
         const { scene } = viewer;
-        scene.backgroundColor = Cesium.Color.TRANSPARENT;
+        scene.backgroundColor = Cesium.Color.BLACK;
+        if (scene.skyAtmosphere) {
+          // Thin blue limb around the planet; slightly dimmer than default so it stays calm.
+          scene.skyAtmosphere.show = true;
+          scene.skyAtmosphere.brightnessShift = -0.08;
+        }
         scene.globe.baseColor = Cesium.Color.fromCssColorString("#0d2219");
         scene.globe.showGroundAtmosphere = true;
         scene.globe.maximumScreenSpaceError = 1.5;
@@ -104,6 +112,7 @@ export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: G
         };
         viewer.canvas.addEventListener("pointerdown", markInteracted);
         viewer.canvas.addEventListener("wheel", markInteracted, { passive: true });
+        detachNavigation = attachTrackpadNavigation(Cesium, viewer);
 
         scene.requestRender();
         registerMap({ Cesium, viewer });
@@ -115,6 +124,7 @@ export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: G
 
     return () => {
       disposed = true;
+      detachNavigation?.();
       registerMap(null);
       const viewer = viewerRef.current;
       if (viewer && !viewer.isDestroyed()) viewer.destroy();
@@ -140,5 +150,5 @@ export default function GlobeViewer({ spin, reducedMotion, onReady, onError }: G
     return () => cancelAnimationFrame(raf);
   }, [spin, reducedMotion]);
 
-  return <div ref={containerRef} className="absolute inset-0" aria-label="Satellite map" role="application" />;
+  return <div ref={containerRef} className="absolute inset-0 touch-none overscroll-contain" aria-label="Satellite map" role="application" />;
 }
