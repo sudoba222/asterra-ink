@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* ASTERRA design tokens */
+@theme {
+  --color-forest: #173e32;
+  --color-deep: #10251e;
+  --color-abyss: #0a1813;
+  --color-lime: #c5e58a;
+  --color-lime-strong: #a9d35f;
+  --color-canvas: #f7f9f4;
+  --color-surface: #ffffff;
+  --color-ink: #202820;
+  --color-ink-muted: #7a857b;
+  --color-ink-faint: #a3ada4;
+  --color-line: #e6ebe3;
+  --color-line-strong: #d5ddd2;
+  --color-mist: #eef3ea;
+
+  --color-good: #2f8a4e;
+  --color-watch: #b7791f;
+  --color-concern: #c2410c;
+  --color-info: #3b6e8f;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-card: 20px;
+  --shadow-card: 0 1px 0 rgba(16, 37, 30, 0.04), 0 8px 24px -12px rgba(16, 37, 30, 0.12);
+  --shadow-float: 0 12px 40px -12px rgba(5, 15, 11, 0.55);
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.7; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --globe-split: 44%;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-abyss);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-deep);
+}
+
+/* Glass surface for controls floating over the globe (used sparingly).
+   In the components layer so utilities (e.g. max-sm:bg-*) can override it. */
+@layer components {
+  .glass {
+    background: rgba(13, 31, 25, 0.62);
+    border: 1px solid rgba(197, 229, 138, 0.14);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #eef2eb 0px, #f7f9f4 120px, #eef2eb 240px);
+  background-size: 800px 100%;
+  animation: var(--animate-shimmer);
+}
+
+.skeleton-dark {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.09) 120px, rgba(255, 255, 255, 0.04) 240px);
+  background-size: 800px 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Thin, quiet scrollbars */
+.scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(122, 133, 123, 0.35) transparent;
+}
+.scroll-quiet-dark {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 229, 138, 0.2) transparent;
+}
+
+/* Cesium: hide default chrome we don't use, keep (restyled) credits for attribution. */
+.cesium-viewer,
+.cesium-viewer-cesiumWidgetContainer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100%;
+  height: 100%;
+}
+.cesium-widget canvas:focus {
+  outline: none;
+}
+.cesium-viewer-bottom {
+  left: auto !important;
+  right: 10px !important;
+  bottom: 6px !important;
+  opacity: 0.55;
+  transform-origin: right bottom;
+  transform: scale(0.85);
+}
+.cesium-credit-logoContainer img {
+  filter: grayscale(1) brightness(1.6);
+  height: 18px !important;
+}
+.cesium-credit-textContainer,
+.cesium-credit-expand-link {
+  color: #c9d3c8 !important;
+  font-size: 10px !important;
+}
+.cesium-widget-credits {
+  display: flex !important;
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeleton-dark {
+    animation: none;
+  }
+}
