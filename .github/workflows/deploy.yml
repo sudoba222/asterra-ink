@@ -22,8 +22,14 @@ jobs:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          # The secret may be the key itself or the key in base64 (one line, easier to copy).
+          if printf '%s' "$DEPLOY_SSH_KEY" | grep -q "BEGIN OPENSSH PRIVATE KEY"; then
+            printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          else
+            printf '%s' "$DEPLOY_SSH_KEY" | tr -d ' \r\n' | base64 -d > ~/.ssh/deploy_key
+          fi
           chmod 600 ~/.ssh/deploy_key
+          ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null || { echo "::error::DEPLOY_SSH_KEY is not a valid private key; paste it again"; exit 1; }
           # Server host key, pinned (fingerprint SHA256:5nOnh/N1ucO1nU0PVJChqr/Vg05R8PkCbEDg/IisbPo)
           echo "46.62.241.6 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDMzMLJOx4GwclV9+Dfk+8b6g6nnjZ5SxldvTPPBid+4" > ~/.ssh/known_hosts
           # The key may only run /usr/local/bin/asterra-deploy on the server (forced command).
