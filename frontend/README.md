@@ -17,6 +17,10 @@ npm run lint && npm run typecheck
 npm run build && npm start
 ```
 
+If an API call shows **"couldn't be reached (404)"** or a code change doesn't show up, the
+Turbopack dev cache in `.next/dev` is stale (e.g. after files were added or moved while the server
+was running). Run `npm run dev:clean` to clear it and restart.
+
 Node 20+. No API keys are required. Optional environment variables:
 `NEXT_PUBLIC_ARCGIS_API_KEY` (keyed Esri imagery for production), `NASA_POWER_API_ROOT` and
 `OPEN_METEO_BASE_URL` (point to another host, e.g. to test outages).
