@@ -25,13 +25,13 @@ Node 20+. No API keys are required. Optional environment variables:
 
 | Step | Where | What happens |
 | --- | --- | --- |
-| 1. Country | `/` | Search by name or code, or press **Use my location** (browser geolocation flies straight to you) |
-| 2. Region → 3. District | `/country/[ISO3]` | Searchable lists from geoBoundaries. The camera flies to each and outlines it. Either step can be skipped |
-| 4–5. Find the field | map | Esri World Imagery appears when you zoom in. Use **+ / −**, scroll or pinch |
-| 6. Mark the field | map | **Mark my field** → tap each corner → **Finish** |
-| 7. Area | toolbar | Live hectares while you draw and edit |
-| 8. Edit / clear / confirm | toolbar | Drag corners, drag midpoints to add corners, double-click to remove one. Crossing edges block Confirm |
-| 9. Save | dialog → `/field/[id]` | Name it and save. The polygon is used to fetch the field's data. Saved fields are listed on the home screen and can be edited, exported as GeoJSON or deleted |
+| 1. Country | `/` | **Click a country on the 3D globe** (hover outlines it and shows its name), search the list, or press **Use my location** |
+| 2. City | `/country/[ISO3]` | Click the map near your field (the nearest town is found) or a town marker, or search the list of the country's cities (GeoNames). The camera flies there and the badge on top always shows *Country › City*. **Browse by region and district instead** keeps the geoBoundaries Region → District steps |
+| 3. Find the field | map | Esri World Imagery appears when you zoom in. Touchpad: **pinch** to zoom toward the cursor, **two-finger swipe** to move. Mouse: drag and scroll. Or use **+ / −** |
+| 4. Mark the field | map | **Mark my field** → tap each corner → **Finish** |
+| 5. Area | toolbar | Live hectares while you draw and edit |
+| 6. Edit / clear / confirm | toolbar | Drag corners, drag midpoints to add corners, double-click to remove one. Crossing edges block Confirm |
+| 7. Save | dialog → `/field/[id]` | Name it and save. The polygon is used to fetch the field's data. Saved fields are listed on the home screen and can be edited, exported as GeoJSON or deleted |
 
 ### The field dashboard
 

@@ -111,7 +111,14 @@ function FieldInfo({ field, data }: { field: Field; data: FieldConditions | null
   };
   const edit = () => {
     draft.start(
-      { countryIso: field.countryIso, regionName: field.regionName, districtName: field.districtName, fieldId: field.id, fieldName: field.name },
+      {
+        countryIso: field.countryIso,
+        regionName: field.regionName,
+        districtName: field.districtName,
+        cityName: field.cityName ?? null,
+        fieldId: field.id,
+        fieldName: field.name,
+      },
       field.polygon,
     );
     router.push("/");

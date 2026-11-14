@@ -9,6 +9,7 @@ export interface DraftMeta {
   countryIso: string | null;
   regionName: string | null;
   districtName: string | null;
+  cityName: string | null;
   /** Set when editing an existing saved field. */
   fieldId: string | null;
   fieldName: string | null;
@@ -29,7 +30,7 @@ interface FieldDraftState {
   cancel: () => void;
 }
 
-const EMPTY_META: DraftMeta = { countryIso: null, regionName: null, districtName: null, fieldId: null, fieldName: null };
+const EMPTY_META: DraftMeta = { countryIso: null, regionName: null, districtName: null, cityName: null, fieldId: null, fieldName: null };
 const Ctx = createContext<FieldDraftState | null>(null);
 
 /** React state around the imperative FieldDrawController. Mounted once in the explore layout. */
