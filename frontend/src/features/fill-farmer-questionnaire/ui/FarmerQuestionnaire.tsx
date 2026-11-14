@@ -54,7 +54,7 @@ export function FarmerQuestionnaire({ value, onChange }: Props) {
   return (
     <form className="space-y-5" onSubmit={(e) => e.preventDefault()} aria-label="Farmer questionnaire">
       <Question n={1} title="What did you grow in the last two seasons?">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 @lg:grid-cols-2">
           {(["Last season", "Season before"] as const).map((label, i) => (
             <label key={label} className="block">
               <span className="mb-1 block text-[11.5px] text-ink-muted">{label}</span>
@@ -88,7 +88,7 @@ export function FarmerQuestionnaire({ value, onChange }: Props) {
         <select
           value={value.plantingMonth ?? ""}
           onChange={(e) => set("plantingMonth", e.target.value ? Number(e.target.value) : null)}
-          className="h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-forest/40 focus:ring-2 focus:ring-lime/60 sm:w-60"
+          className="h-10 w-full rounded-xl border border-line bg-surface px-3 text-[13px] text-ink outline-none focus:border-forest/40 focus:ring-2 focus:ring-lime/60 @lg:w-60"
         >
           <option value="">Not decided yet</option>
           {Array.from({ length: 12 }, (_, i) => (
@@ -131,7 +131,7 @@ export function FarmerQuestionnaire({ value, onChange }: Props) {
         )}
       </Question>
 
-      <div className="grid gap-5 border-t border-line pt-4 sm:grid-cols-2">
+      <div className="grid gap-5 border-t border-line pt-4 @lg:grid-cols-2">
         <Question title="Soil type" optional>
           <Chips options={SOILS} value={value.soilType} onChange={(v) => set("soilType", v)} />
         </Question>

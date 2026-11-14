@@ -21,10 +21,10 @@ export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode 
       initial={{ opacity: 0, x: -24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className="pointer-events-auto absolute inset-x-0 top-[40dvh] bottom-0 overflow-hidden rounded-t-[28px] bg-canvas shadow-[0_-12px_40px_-16px_rgba(0,0,0,0.5)] lg:top-0 lg:right-[var(--globe-split)] lg:rounded-none lg:shadow-none"
+      className="pointer-events-auto absolute inset-x-0 top-[40dvh] bottom-0 overflow-hidden rounded-t-[28px] bg-canvas shadow-[0_-12px_40px_-16px_rgba(0,0,0,0.5)] split:top-0 split:right-[var(--globe-split)] split:rounded-none split:shadow-none"
     >
-      <div className="scroll-quiet h-full overflow-y-auto">
-        <div className="mx-auto max-w-[760px] px-4 pt-5 pb-16 sm:px-6 lg:pt-7">
+      <div className="scroll-quiet @container h-full overflow-y-auto">
+        <div className="mx-auto max-w-[880px] px-4 pt-5 pb-16 @md:px-6 split:pt-7">
           <Link href="/" className="inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-[13px] font-medium text-ink-muted hover:bg-mist hover:text-ink">
             <ArrowLeft className="size-4" aria-hidden /> My fields
           </Link>
@@ -47,7 +47,7 @@ export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode 
             {data ? (
               <div className={status === "loading" ? "opacity-60 transition-opacity" : "transition-opacity"}>
                 <RecommendationCard rec={data.recommendation} />
-                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-3 @2xl:grid-cols-2">
                   <StatusCard title="Temperature" icon={Thermometer} state={data.temperature} />
                   <StatusCard title="Soil moisture" icon={Droplets} state={data.soil} />
                   <StatusCard title="Crop health" icon={Leaf} state={data.crop} />
@@ -82,7 +82,7 @@ export function DashboardSkeleton() {
     <div aria-label="Loading field data">
       <Skeleton className="h-36 rounded-[24px]" />
       <p className="mt-3 text-center text-[12.5px] text-ink-muted">Checking NASA satellite and weather data for your field…</p>
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-3 @2xl:grid-cols-2">
         {[0, 1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-44 rounded-[var(--radius-card)]" />
         ))}

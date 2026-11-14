@@ -15,7 +15,7 @@ export function RecommendationCard({ rec }: { rec: Recommendation }) {
     <section
       aria-labelledby="rec-title"
       className={cn(
-        "relative overflow-hidden rounded-[24px] p-5 text-white shadow-[var(--shadow-card)] sm:p-6",
+        "relative overflow-hidden rounded-[24px] p-5 text-white shadow-[var(--shadow-card)] @md:p-6",
         rec.level === "alert" ? "bg-[#7A2E0A]" : rec.level === "watch" ? "bg-[#6B4A12]" : "bg-forest",
       )}
     >
@@ -27,7 +27,7 @@ export function RecommendationCard({ rec }: { rec: Recommendation }) {
         <span className="mt-0.5 grid size-10 shrink-0 place-items-center rounded-2xl bg-white/12">
           <Icon className="size-5" aria-hidden />
         </span>
-        <h2 id="rec-title" className="text-[19px] leading-snug font-semibold text-balance sm:text-[21px]">
+        <h2 id="rec-title" className="text-[19px] leading-snug font-semibold text-balance @md:text-[21px]">
           {rec.title}
         </h2>
       </div>

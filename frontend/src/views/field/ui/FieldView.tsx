@@ -26,7 +26,7 @@ export function FieldView({ id }: { id: string }) {
   if (!ready) return <FieldViewSkeleton />;
   if (!field) {
     return (
-      <div className="pointer-events-auto grid h-full place-items-center bg-canvas p-6 lg:mr-[var(--globe-split)]">
+      <div className="pointer-events-auto grid h-full place-items-center bg-canvas p-6 split:mr-[var(--globe-split)]">
         <StateMessage
           title="We couldn’t find this field"
           description="Fields are saved in this browser. It may have been deleted, or saved on another device."
@@ -43,7 +43,7 @@ export function FieldView({ id }: { id: string }) {
   return (
     <>
       <FieldOutline field={field} />
-      <div className="pointer-events-auto absolute top-3 right-3 z-20 lg:top-7 lg:right-7">
+      <div className="pointer-events-auto absolute top-3 right-3 z-20 split:top-7 split:right-7">
         <LayerSwitcher />
       </div>
       <FieldDashboard field={field} plan={<PlanNextCrop field={field} />} />
@@ -72,8 +72,8 @@ function PlanNextCrop({ field }: { field: Field }) {
 
 export function FieldViewSkeleton() {
   return (
-    <div className="pointer-events-auto absolute inset-x-0 top-[40dvh] bottom-0 overflow-hidden rounded-t-[28px] bg-canvas lg:top-0 lg:right-[var(--globe-split)] lg:rounded-none">
-      <div className="mx-auto max-w-[760px] px-4 pt-16 sm:px-6">
+    <div className="pointer-events-auto absolute inset-x-0 top-[40dvh] bottom-0 overflow-hidden rounded-t-[28px] bg-canvas split:top-0 split:right-[var(--globe-split)] split:rounded-none">
+      <div className="@container mx-auto max-w-[880px] px-4 pt-16 @md:px-6">
         <DashboardSkeleton />
       </div>
     </div>
