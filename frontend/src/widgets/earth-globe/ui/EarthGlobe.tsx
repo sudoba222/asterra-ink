@@ -24,11 +24,11 @@ export function EarthGlobe({ spin }: { spin: boolean }) {
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[radial-gradient(ellipse_at_50%_45%,#1b3d31_0%,#0e231b_42%,#07130f_100%)]">
-      {/* faint star field */}
+    <div className="absolute inset-0 overflow-hidden bg-black">
+      {/* faint stars while Cesium loads (the 3D sky replaces them once the globe is ready) */}
       <div
         aria-hidden
-        className="absolute inset-0 opacity-40 [background-image:radial-gradient(1px_1px_at_20%_30%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_70%_80%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_85%_20%,#dfe_50%,transparent_51%),radial-gradient(1px_1px_at_35%_75%,#fff_50%,transparent_51%),radial-gradient(1.5px_1.5px_at_55%_12%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_10%_85%,#fff_50%,transparent_51%)]"
+        className="absolute inset-0 opacity-35 [background-image:radial-gradient(1px_1px_at_20%_30%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_70%_80%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_85%_20%,#dfe_50%,transparent_51%),radial-gradient(1px_1px_at_35%_75%,#fff_50%,transparent_51%),radial-gradient(1.5px_1.5px_at_55%_12%,#fff_50%,transparent_51%),radial-gradient(1px_1px_at_10%_85%,#fff_50%,transparent_51%)]"
       />
       {status !== "error" && (
         <motion.div
