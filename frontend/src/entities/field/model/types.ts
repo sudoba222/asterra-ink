@@ -11,5 +11,7 @@ export interface Field {
   countryIso: string | null;
   regionName: string | null;
   districtName: string | null;
+  /** Nearest city/town picked on the globe (GeoNames). Missing on fields saved before it existed. */
+  cityName?: string | null;
   createdAt: string;
 }

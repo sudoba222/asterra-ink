@@ -4,7 +4,7 @@ import { MapPin, X } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { fieldRepository, formatHectares, newFieldId, ringCentroid, type Field } from "@/entities/field";
+import { fieldRepository, formatHectares, newFieldId, placeLabel, ringCentroid, type Field } from "@/entities/field";
 import { formatCoord } from "@/shared/lib";
 import { useFieldDraft } from "../model/field-draft-context";
 
@@ -15,7 +15,7 @@ export function ConfirmFieldDialog({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState(d.meta.fieldName ?? "My field");
   const inputRef = useRef<HTMLInputElement>(null);
   const centroid = ringCentroid(d.vertices);
-  const place = [d.meta.districtName, d.meta.regionName].filter(Boolean).join(", ");
+  const place = placeLabel(d.meta);
 
   useEffect(() => {
     inputRef.current?.select();
@@ -34,6 +34,7 @@ export function ConfirmFieldDialog({ onClose }: { onClose: () => void }) {
       countryIso: d.meta.countryIso,
       regionName: d.meta.regionName,
       districtName: d.meta.districtName,
+      cityName: d.meta.cityName,
       createdAt: new Date().toISOString(),
     };
     fieldRepository.save(field);

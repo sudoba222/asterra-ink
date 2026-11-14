@@ -3,11 +3,12 @@
 import { ChevronRight, MapPin, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatHectares } from "../lib/area";
+import { placeLabel } from "../lib/place";
 import type { Field } from "../model/types";
 
 /** Compact saved-field row for "My fields". */
 export function FieldCard({ field, onDelete }: { field: Field; onDelete?: (f: Field) => void }) {
-  const place = [field.districtName, field.regionName].filter(Boolean).join(", ");
+  const place = placeLabel(field);
   return (
     <div className="group flex items-center gap-2 rounded-xl bg-white/6 ring-1 ring-white/10 transition hover:bg-white/10">
       <Link href={`/field/${field.id}`} className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5">
