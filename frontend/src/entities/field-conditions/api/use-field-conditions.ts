@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { LonLat } from "@/entities/field";
+import { readApiError } from "@/shared/api";
 import type { FieldConditions } from "../model/types";
 
 type State =
@@ -27,9 +28,9 @@ export function useFieldConditions(polygon: LonLat[] | null) {
       signal: ctrl.signal,
     })
       .then(async (res) => {
-        const body = await res.json().catch(() => null);
-        if (!res.ok) throw new Error(body?.error ?? `Request failed (${res.status})`);
-        setState({ status: "success", data: body as FieldConditions, error: null });
+        if (!res.ok) throw new Error(await readApiError(res));
+        const body = (await res.json()) as FieldConditions;
+        setState({ status: "success", data: body, error: null });
       })
       .catch((e: unknown) => {
         if (!ctrl.signal.aborted) setState((s) => ({ status: "error", data: s.data, error: e instanceof Error ? e.message : String(e) }));
