@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { readApiError } from "./http-error";
 
 export type FetchState<T> =
   | { status: "idle"; data: null; error: null }
@@ -23,10 +24,7 @@ export function useFetchJson<T>(url: string | null): FetchState<T> & { retry: ()
     setState((s) => ({ status: "loading", data: s.data, error: null }));
     fetch(url, { signal: ctrl.signal, headers: { accept: "application/json" } })
       .then(async (res) => {
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          throw new Error(body?.error ?? `Request failed (${res.status})`);
-        }
+        if (!res.ok) throw new Error(await readApiError(res));
         return res.json() as Promise<T>;
       })
       .then((data) => setState({ status: "success", data, error: null }))
