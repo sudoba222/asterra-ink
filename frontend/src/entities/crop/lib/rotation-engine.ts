@@ -1,28 +1,20 @@
 import { monthName } from "@/shared/lib";
-import { CROPS, HISTORY_OPTIONS, cropById, historyFamily, type Crop } from "../model/catalog";
+import { CROPS, cropById, historyOption, type Crop } from "../model/catalog";
 import type { FarmerProfile } from "../model/farmer-profile";
+import type { Check, ClimateContext, ScoreComponent, SeasonHistory, StrategyInput, StrategyOutcome, StrategyWeights } from "./engine-types";
+import { BASE_RANGE, STRATEGY_META, cropFamilyStrategy, legumeStrategy, normalizePoints, resolveWeights, waterEfficiencyStrategy } from "./strategies";
+
+export type { Check, CheckKind, ClimateContext, ScoreComponent, StrategyId, StrategyWeights } from "./engine-types";
+export { DEFAULT_STRATEGY_WEIGHTS, seasonalWater, type SeasonalWater, type WaterLevel } from "./strategies";
 
 /**
  * Transparent rule engine. Rules + weights are documented in RULES / WEIGHTS and
  * shown in the UI. It filters and orders candidates; it never estimates profit.
+ *
+ * score = base points (climate, rainfall, soil/risk goal)
+ *       + Σ strategy weight × strategy points (crop family, nitrogen/legumes, water efficiency)
+ * Each agronomic factor is owned by exactly one component, so nothing is counted twice.
  */
-
-export interface ClimateContext {
-  /** Mean temperature per calendar month (index 0 = Jan), °C. */
-  monthlyTemp: Array<number | null>;
-  /** Lowest hourly temperature per calendar month (POWER T2M_MIN, monthly), °C. */
-  monthlyTmin: Array<number | null>;
-  annualRainfall: number | null;
-  status: "live" | "sample" | "derived" | "unavailable";
-}
-
-export type CheckKind = "pass" | "warn" | "fail" | "note";
-
-export interface Check {
-  kind: CheckKind;
-  rule: string;
-  text: string;
-}
 
 export interface CandidateResult {
   crop: Crop;
@@ -30,12 +22,21 @@ export interface CandidateResult {
   score: number;
   seasonLabel: string;
   checks: Check[];
+  /** Breakdown of `score` (additive field; older consumers can ignore it). */
+  components: ScoreComponent[];
 }
 
 export interface RotationResult {
   candidates: CandidateResult[];
   missingData: string[];
   notes: string[];
+  /** Strategy multipliers used for this run. */
+  weights: StrategyWeights;
+}
+
+export interface EvaluateOptions {
+  /** Per-strategy multipliers; missing / invalid entries fall back to 1. */
+  weights?: Partial<StrategyWeights>;
 }
 
 export const WEIGHTS = [
@@ -47,7 +48,25 @@ export const WEIGHTS = [
   { rule: "Same crop as last season", points: "−2" },
   { rule: "Same family after reported pests/disease", points: "−3" },
   { rule: "High water need when goal is saving water", points: "−1" },
+  { rule: "Crop family not grown in either of the last two seasons", points: "+1" },
+  { rule: "Family returns after one break season (needs a longer break)", points: "−1 / −2 with pests" },
+  { rule: "Third season in a row of the same family", points: "−1" },
+  { rule: "Legume after another nitrogen-demanding crop", points: "+1" },
+  { rule: "Legume after two nitrogen-demanding seasons", points: "+1" },
+  { rule: "Nitrogen-demanding crop after a legume", points: "+1" },
+  { rule: "Legume after a legume", points: "−1" },
+  { rule: "Rainfed, scarce / limited season water: low water need", points: "+2 / +1" },
+  { rule: "Rainfed, scarce season water: medium / high water need", points: "−1 / −2" },
+  { rule: "Rainfed, limited season water: high water need", points: "−1" },
+  { rule: "Second high-water crop in a row while water is short", points: "−1" },
 ];
+
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+function resolveHistory(profile: FarmerProfile): SeasonHistory {
+  const pick = (id: string | undefined) => (id && id !== "unknown" ? historyOption(id) : null);
+  return { last: pick(profile.previousCrops[0]), before: pick(profile.previousCrops[1]) };
+}
 
 function seasonMonths(start: number, length: number): number[] {
   return Array.from({ length }, (_, i) => (start + i) % 12);
@@ -74,12 +93,14 @@ function bestStart(crop: Crop, ctx: ClimateContext): number {
   return best;
 }
 
-export function evaluateRotation(profile: FarmerProfile, ctx: ClimateContext): RotationResult {
+export function evaluateRotation(profile: FarmerProfile, ctx: ClimateContext, options: EvaluateOptions = {}): RotationResult {
   const missingData: string[] = [];
   const notes: string[] = [];
+  const weights = resolveWeights(options.weights);
+  const history = resolveHistory(profile);
   const last = profile.previousCrops[0];
   const before = profile.previousCrops[1];
-  const lastFamily = last && last !== "unknown" ? historyFamily(last) : null;
+  const lastFamily = history.last?.family ?? null;
   const pestHistory = profile.issues.includes("pests") || profile.issues.includes("disease");
   const irrigated = profile.irrigation === "irrigated" || profile.irrigation === "both";
 
@@ -95,6 +116,7 @@ export function evaluateRotation(profile: FarmerProfile, ctx: ClimateContext): R
     notes.push(`${cropById(last)?.name ?? "The same crop"} was grown two seasons in a row — breaking the sequence lowers pest and disease carry-over.`);
   }
 
+  let waterDataMissing = false;
   const candidates = CROPS.map((crop): CandidateResult => {
     const checks: Check[] = [];
     let score = 0;
@@ -141,35 +163,19 @@ export function evaluateRotation(profile: FarmerProfile, ctx: ClimateContext): R
       checks.push({ kind: "pass", rule: "Water", text: `Annual rainfall ${Math.round(rain)} mm suits this crop.` });
     }
 
-    // Rotation
-    if (lastFamily) {
-      if (last === crop.id) {
-        score -= 2;
-        checks.push({ kind: "warn", rule: "Rotation", text: "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk." });
-      }
-      if (lastFamily === crop.family) {
-        if (pestHistory) {
-          score -= 3;
-          checks.push({ kind: "warn", rule: "Rotation", text: `Same family (${crop.familyLabel}) as last season after reported pests/disease — many pathogens share hosts within a family.` });
-        } else if (last !== crop.id) {
-          checks.push({ kind: "note", rule: "Rotation", text: `Same family as last season — acceptable without pest history, but a different family breaks pest cycles better.` });
-        }
-      } else {
-        score += 2;
-        checks.push({
-          kind: "pass",
-          rule: "Rotation",
-          text: `Breaks the cycle: ${crop.familyLabel.toLowerCase()} after ${(HISTORY_OPTIONS.find((o) => o.id === last)?.name ?? "last season's crop").toLowerCase()}.`,
-        });
-        if (crop.nitrogen === "fixes" && lastFamily === "Poaceae") {
-          score += 1;
-          checks.push({ kind: "pass", rule: "Nutrients", text: "Legume after a cereal — fixes nitrogen for the next crop." });
-        }
-      }
-    }
-    if (crop.nitrogen === "demanding" && last && cropById(last)?.nitrogen === "demanding" && lastFamily !== null) {
-      checks.push({ kind: "note", rule: "Nutrients", text: "Follows another nitrogen-demanding crop — plan fertilization or a legume next." });
-    }
+    // Rotation strategies: crop family, then nitrogen (legumes). They own all rotation points.
+    const input: StrategyInput = {
+      crop,
+      profile,
+      ctx,
+      months,
+      history,
+      pestHistory,
+      irrigated,
+      rainfallShortageFlagged: !irrigated && rain !== null && rain < crop.rainfall.optMin,
+    };
+    const outcomes: StrategyOutcome[] = [cropFamilyStrategy(input), legumeStrategy(input)];
+    for (const o of outcomes) checks.push(...o.checks);
 
     // Soil & field issues
     if (crop.drainageSensitive && (profile.soilType === "clay" || profile.issues.includes("waterlogging"))) {
@@ -188,25 +194,40 @@ export function evaluateRotation(profile: FarmerProfile, ctx: ClimateContext): R
       score += 2;
       checks.push({ kind: "pass", rule: "Goal", text: "Supports soil health: legume that adds nitrogen." });
     }
-    if (profile.goal === "water") {
-      if (crop.waterNeed === "low") {
-        score += 2;
-        checks.push({ kind: "pass", rule: "Goal", text: "Low water need — matches the water-saving goal." });
-      } else if (crop.waterNeed === "high") {
-        score -= 1;
-        checks.push({ kind: "warn", rule: "Goal", text: "High water need — conflicts with the water-saving goal." });
-      }
-    }
+    // Water-efficiency strategy (owns the water-saving goal rule as well as seasonal scarcity).
+    const water = waterEfficiencyStrategy(input);
+    if (!irrigated && !water.water) waterDataMissing = true;
+    checks.push(...water.checks);
+    outcomes.push(water);
+
     if (profile.goal === "risk" && crop.waterNeed !== "high" && checks.every((c) => c.kind !== "warn" && c.kind !== "fail")) {
       score += 2;
       checks.push({ kind: "pass", rule: "Goal", text: "No warnings — a lower-risk option under current conditions." });
     }
 
+    const components: ScoreComponent[] = [
+      { id: "base", label: "Climate, rainfall & goal", points: score, weight: 1, weighted: score, normalized: normalizePoints(score, BASE_RANGE), applicable: true },
+      ...outcomes.map((o) => ({
+        id: o.id,
+        label: STRATEGY_META[o.id].label,
+        points: o.points,
+        weight: weights[o.id],
+        weighted: round1(o.points * weights[o.id]),
+        normalized: normalizePoints(o.points, STRATEGY_META[o.id].range),
+        applicable: o.applicable,
+      })),
+    ];
+    const total = round1(components.reduce((sum, c) => sum + c.weighted, 0));
+
     const status = checks.some((c) => c.kind === "fail") ? "excluded" : checks.some((c) => c.kind === "warn") ? "caution" : "suitable";
-    return { crop, status, score, seasonLabel, checks };
+    return { crop, status, score: total, seasonLabel, checks, components };
   });
+
+  if (waterDataMissing) {
+    missingData.push("Monthly rainfall and evapotranspiration for the growing season — the seasonal water-efficiency check was skipped for some or all crops.");
+  }
 
   const order = { suitable: 0, caution: 1, excluded: 2 };
   candidates.sort((a, b) => order[a.status] - order[b.status] || b.score - a.score || a.crop.name.localeCompare(b.crop.name));
-  return { candidates, missingData, notes };
+  return { candidates, missingData, notes, weights };
 }

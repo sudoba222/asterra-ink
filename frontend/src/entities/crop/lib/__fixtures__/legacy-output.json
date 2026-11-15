@@ -1,0 +1,2119 @@
+[
+  {
+    "name": "empty profile",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window."
+    ],
+    "missingData": [
+      "Last season's crop — rotation rules can't be applied without it.",
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Irrigation — water checks assume rainfed conditions.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Aug – Nov",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 15.8 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "May – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.3 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jul – Oct",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "wheat after maize, rainfed",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window."
+    ],
+    "missingData": [
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 7,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after wheat."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "suitable",
+        "score": 7,
+        "seasonLabel": "May – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.3 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after wheat."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "suitable",
+        "score": 7,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after wheat."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Jul – Oct",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: nightshade family after wheat."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after wheat."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Aug – Nov",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 15.8 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: mallow family after wheat."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 0,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "soybean after wheat, irrigated, soil goal",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window."
+    ],
+    "missingData": [
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Supports soil health: legume that adds nitrogen."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Aug – Nov",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 15.8 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after soybean."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "May – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.3 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Supports soil health: legume that adds nitrogen."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: mallow family after soybean."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after soybean."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Jul – Oct",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: nightshade family after soybean."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after soybean."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after soybean."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after soybean."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (650 mm/yr) is not limiting."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Supports soil health: legume that adds nitrogen."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "potato twice, pests, clay, risk goal",
+    "notes": [
+      "Potato was grown two seasons in a row — breaking the sequence lowers pest and disease carry-over."
+    ],
+    "missingData": [
+      "Irrigation — water checks assume rainfed conditions.",
+      "Which pest or disease — host ranges differ, so family-level rules are only a first filter.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 8,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after potato."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "No warnings — a lower-risk option under current conditions."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after potato."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "alfalfa",
+        "status": "caution",
+        "score": 6,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after potato."
+          },
+          {
+            "kind": "warn",
+            "rule": "Drainage",
+            "text": "Sensitive to waterlogging — risky on heavy clay or poorly drained fields."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "caution",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after potato."
+          },
+          {
+            "kind": "warn",
+            "rule": "Drainage",
+            "text": "Sensitive to waterlogging — risky on heavy clay or poorly drained fields."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "caution",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after potato."
+          },
+          {
+            "kind": "warn",
+            "rule": "Drainage",
+            "text": "Sensitive to waterlogging — risky on heavy clay or poorly drained fields."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: mallow family after potato."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after potato."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is tolerated but outside the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after potato."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after potato."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "caution",
+        "score": -1,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same family (Nightshade family) as last season after reported pests/disease — many pathogens share hosts within a family."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "warn",
+            "rule": "Drainage",
+            "text": "Sensitive to waterlogging — risky on heavy clay or poorly drained fields."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "maize after sunflower, water goal, sandy, salinity",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window."
+    ],
+    "missingData": [
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 8,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after maize (corn)."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Low water need — matches the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "suitable",
+        "score": 7,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after maize (corn)."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Aug – Nov",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 15.8 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "pass",
+            "rule": "Salinity",
+            "text": "Relatively salt-tolerant."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Low water need — matches the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "caution",
+        "score": 9,
+        "seasonLabel": "May – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.3 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after maize (corn)."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          },
+          {
+            "kind": "warn",
+            "rule": "Salinity",
+            "text": "Salt-sensitive crop — reported salinity may reduce yield."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Low water need — matches the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "alfalfa",
+        "status": "caution",
+        "score": 6,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after maize (corn)."
+          },
+          {
+            "kind": "pass",
+            "rule": "Nutrients",
+            "text": "Legume after a cereal — fixes nitrogen for the next crop."
+          },
+          {
+            "kind": "warn",
+            "rule": "Soil",
+            "text": "High water need on sandy soil without irrigation — low water-holding capacity."
+          },
+          {
+            "kind": "warn",
+            "rule": "Salinity",
+            "text": "Salt-sensitive crop — reported salinity may reduce yield."
+          },
+          {
+            "kind": "warn",
+            "rule": "Goal",
+            "text": "High water need — conflicts with the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "caution",
+        "score": 6,
+        "seasonLabel": "Jul – Oct",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: nightshade family after maize (corn)."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "warn",
+            "rule": "Salinity",
+            "text": "Salt-sensitive crop — reported salinity may reduce yield."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "pass",
+            "rule": "Goal",
+            "text": "Low water need — matches the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 3,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: mallow family after maize (corn)."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "warn",
+            "rule": "Soil",
+            "text": "High water need on sandy soil without irrigation — low water-holding capacity."
+          },
+          {
+            "kind": "pass",
+            "rule": "Salinity",
+            "text": "Relatively salt-tolerant."
+          },
+          {
+            "kind": "warn",
+            "rule": "Goal",
+            "text": "High water need — conflicts with the water-saving goal."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "caution",
+        "score": 1,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          },
+          {
+            "kind": "warn",
+            "rule": "Soil",
+            "text": "High water need on sandy soil without irrigation — low water-holding capacity."
+          },
+          {
+            "kind": "warn",
+            "rule": "Salinity",
+            "text": "Salt-sensitive crop — reported salinity may reduce yield."
+          },
+          {
+            "kind": "warn",
+            "rule": "Goal",
+            "text": "High water need — conflicts with the water-saving goal."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "chickpea, before unknown, April, profit",
+    "notes": [
+      "Profit goal selected, but no price or cost data is available, so candidates are NOT ranked by profit."
+    ],
+    "missingData": [
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Irrigation — water checks assume rainfed conditions.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: nightshade family after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: mallow family after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after chickpea."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 19.5 °C is tolerated but outside the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          },
+          {
+            "kind": "note",
+            "rule": "Rotation",
+            "text": "Same family as last season — acceptable without pest history, but a different family breaks pest cycles better."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "cotton after fallow, hot",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window."
+    ],
+    "missingData": [
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Oct – Mar",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 23.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after cotton."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Dec – Mar",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.0 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after cotton."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Sep – Dec",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 26.0 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after cotton."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Nov – Feb",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 21.8 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: nightshade family after cotton."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Apr – Jul",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 31.5 °C is within the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after cotton."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Feb – May",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 26.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: legumes after cotton."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Sep – Dec",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 26.0 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: sunflower family after cotton."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "suitable",
+        "score": 6,
+        "seasonLabel": "Nov – Mar",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after cotton."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "caution",
+        "score": 4,
+        "seasonLabel": "Nov – Feb",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 21.8 °C is tolerated but outside the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting."
+          },
+          {
+            "kind": "pass",
+            "rule": "Rotation",
+            "text": "Breaks the cycle: cereals (grass family) after cotton."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Dec – May",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 24.5 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Irrigated field — rainfall (700 mm/yr) is not limiting, but this crop uses a lot of water."
+          },
+          {
+            "kind": "warn",
+            "rule": "Rotation",
+            "text": "Same crop as last season — repeating raises pest, disease and nutrient-depletion risk."
+          },
+          {
+            "kind": "note",
+            "rule": "Nutrients",
+            "text": "Follows another nitrogen-demanding crop — plan fertilization or a legume next."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sample climate, no history",
+    "notes": [
+      "Planting month unknown — each crop is evaluated in its best-matching season window.",
+      "Climate inputs are SAMPLE data (NASA POWER unavailable) — results are for interface testing only."
+    ],
+    "missingData": [
+      "Last season's crop — rotation rules can't be applied without it.",
+      "Soil type / texture (e.g. from a soil test or SoilGrids) — drainage and water-holding checks are skipped.",
+      "Irrigation — water checks assume rainfed conditions.",
+      "Local selling prices and production costs — required before any profit comparison."
+    ],
+    "candidates": [
+      {
+        "id": "alfalfa",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "barley",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Aug – Nov",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 15.8 °C is within the optimal 15–20 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "chickpea",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "May – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.3 °C is within the optimal 15–29 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "maize",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 18–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "potato",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jul – Oct",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.3 °C is within the optimal 15–25 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "soybean",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 20–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "sunflower",
+        "status": "suitable",
+        "score": 4,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is within the optimal 17–33 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "cotton",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Sep",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.2 °C is within the optimal 20–30 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 700–1500 mm — supplemental irrigation may be needed."
+          }
+        ]
+      },
+      {
+        "id": "sorghum",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Jun – Sep",
+        "checks": [
+          {
+            "kind": "warn",
+            "rule": "Temperature",
+            "text": "Season mean 22.5 °C is tolerated but outside the optimal 27–35 °C."
+          },
+          {
+            "kind": "pass",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm suits this crop."
+          }
+        ]
+      },
+      {
+        "id": "wheat",
+        "status": "caution",
+        "score": 2,
+        "seasonLabel": "Apr – Aug",
+        "checks": [
+          {
+            "kind": "pass",
+            "rule": "Temperature",
+            "text": "Season mean 20.4 °C is within the optimal 15–23 °C."
+          },
+          {
+            "kind": "warn",
+            "rule": "Water",
+            "text": "Annual rainfall 650 mm is below the optimal 750–900 mm — supplemental irrigation may be needed."
+          }
+        ]
+      }
+    ]
+  }
+]

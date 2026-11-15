@@ -62,13 +62,44 @@ export const CROPS: Crop[] = [
   crop({ id: "potato", name: "Potato", family: "Solanaceae", seasonMonths: 4, temperature: { absMin: 7, optMin: 15, optMax: 25, absMax: 30 }, rainfall: { absMin: 250, optMin: 500, optMax: 800, absMax: 2000 }, waterNeed: "medium", nitrogen: "demanding", frostTolerant: false, drainageSensitive: true, salinity: "sensitive" }),
 ];
 
-/** Crops a farmer can report as previous seasons (catalog + common extras). */
-export const HISTORY_OPTIONS: Array<{ id: string; name: string; family: CropFamily | null }> = [
-  ...CROPS.map((c) => ({ id: c.id, name: c.name, family: c.family as CropFamily | null })),
-  { id: "rice", name: "Rice", family: "Poaceae" },
-  { id: "vegetables", name: "Vegetables (mixed)", family: null },
-  { id: "fallow", name: "Fallow / nothing", family: null },
-  { id: "other", name: "Other crop", family: null },
+/**
+ * Rotation interval per botanical family — INDICATIVE, general agronomy guidance
+ * (extension-service rotation tables), not verified by the agronomy workstream.
+ * `minBreakSeasons` = seasons of a *different* family usually recommended before the
+ * same family returns. `buildUp` names the well-known soil-borne problems behind it.
+ */
+export const FAMILY_ROTATION: Record<CropFamily, { minBreakSeasons: number; buildUp: string }> = {
+  Poaceae: { minBreakSeasons: 1, buildUp: "take-all and other cereal root diseases" },
+  Fabaceae: { minBreakSeasons: 3, buildUp: "legume root rots (e.g. Fusarium, Aphanomyces)" },
+  Solanaceae: { minBreakSeasons: 3, buildUp: "late blight, cyst nematodes and other nightshade pests" },
+  Asteraceae: { minBreakSeasons: 3, buildUp: "Sclerotinia white mould and downy mildew" },
+  Malvaceae: { minBreakSeasons: 2, buildUp: "Verticillium wilt and root-knot nematodes" },
+};
+
+export interface HistoryOption {
+  id: string;
+  name: string;
+  family: CropFamily | null;
+  /** null when unknown (mixed vegetables, other) or not a crop (fallow). */
+  nitrogen: Crop["nitrogen"] | null;
+  waterNeed: Crop["waterNeed"] | null;
+}
+
+/**
+ * Crops a farmer can report as previous seasons (catalog + common extras). The extras are
+ * history-only: they have no ECOCROP ranges here, so they are never recommended.
+ * Water-need classes for extras are indicative (FAO crop water information).
+ */
+export const HISTORY_OPTIONS: HistoryOption[] = [
+  ...CROPS.map((c) => ({ id: c.id, name: c.name, family: c.family as CropFamily | null, nitrogen: c.nitrogen, waterNeed: c.waterNeed })),
+  { id: "rice", name: "Rice", family: "Poaceae", nitrogen: "demanding", waterNeed: "high" },
+  { id: "peas", name: "Peas", family: "Fabaceae", nitrogen: "fixes", waterNeed: "medium" },
+  { id: "beans", name: "Beans", family: "Fabaceae", nitrogen: "fixes", waterNeed: "medium" },
+  { id: "lentils", name: "Lentils", family: "Fabaceae", nitrogen: "fixes", waterNeed: "low" },
+  { id: "tomato", name: "Tomatoes", family: "Solanaceae", nitrogen: "demanding", waterNeed: "medium" },
+  { id: "vegetables", name: "Vegetables (mixed)", family: null, nitrogen: null, waterNeed: null },
+  { id: "fallow", name: "Fallow / nothing", family: null, nitrogen: null, waterNeed: null },
+  { id: "other", name: "Other crop", family: null, nitrogen: null, waterNeed: null },
 ];
 
 export function cropById(id: string) {
@@ -77,4 +108,8 @@ export function cropById(id: string) {
 
 export function historyFamily(id: string): CropFamily | null {
   return HISTORY_OPTIONS.find((o) => o.id === id)?.family ?? null;
+}
+
+export function historyOption(id: string): HistoryOption | null {
+  return HISTORY_OPTIONS.find((o) => o.id === id) ?? null;
 }
