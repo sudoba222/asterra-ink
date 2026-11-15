@@ -24,16 +24,19 @@ export class AsterraApiError extends Error {
 }
 
 /** POSTs JSON to the backend; backend errors `{ error: { code, message } }` become AsterraApiError. */
-export async function postAsterraApi<T>(path: string, body: unknown, timeoutMs = 60_000): Promise<T> {
+export function postAsterraApi<T>(path: string, body: unknown, timeoutMs = 60_000): Promise<T> {
+  return callAsterraApi<T>(path, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body) }, timeoutMs);
+}
+
+/** GET from the backend, e.g. `getAsterraApi("/water/trend?lat=…&lon=…")`. */
+export function getAsterraApi<T>(path: string, timeoutMs = 60_000): Promise<T> {
+  return callAsterraApi<T>(path, { headers: { accept: "application/json" } }, timeoutMs);
+}
+
+async function callAsterraApi<T>(path: string, init: RequestInit, timeoutMs: number): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(asterraApiUrl(path), {
-      method: "POST",
-      headers: { "content-type": "application/json", accept: "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(timeoutMs),
-      cache: "no-store",
-    });
+    res = await fetch(asterraApiUrl(path), { ...init, signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
   } catch {
     throw new AsterraApiError("The ASTERRA satellite service isn’t reachable right now. Please try again.", 502, "BACKEND_UNREACHABLE");
   }

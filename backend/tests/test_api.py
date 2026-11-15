@@ -15,6 +15,7 @@ def test_health_says_whether_copernicus_is_set_up(make_client):
         "status": "ok",
         "environment": "dev",
         "copernicus": "missing",
+        "earthdata": "missing",
     }
     client, _ = make_client()
     assert client.get("/api/v1/health").json()["copernicus"] == "configured"

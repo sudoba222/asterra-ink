@@ -7,18 +7,15 @@ from app.geometry import distinct_points, self_intersects
 Coordinate = tuple[float, float]
 
 
-class NdviRequest(BaseModel):
+class FieldPolygon(BaseModel):
     """Same polygon format as the frontend's /api/land-suitability: [[lon, lat], ...]."""
 
     model_config = ConfigDict(populate_by_name=True)
 
     polygon: list[Coordinate] = Field(min_length=3, max_length=500)
-    start: date | None = Field(default=None, alias="from", description="First day. Default: 12 months ago.")
-    end: date | None = Field(default=None, alias="to", description="Last day. Default: today.")
-    interval_days: int = Field(default=10, ge=5, le=31, alias="intervalDays")
 
     @model_validator(mode="after")
-    def check(self) -> "NdviRequest":
+    def check_polygon(self) -> "FieldPolygon":
         for lon, lat in self.polygon:
             if not (-180 <= lon <= 180 and -90 <= lat <= 90):
                 raise ValueError("Each corner must be [lon, lat] with lon -180..180 and lat -90..90.")
@@ -26,7 +23,16 @@ class NdviRequest(BaseModel):
             raise ValueError("The field needs at least 3 different corners.")
         if self_intersects(self.polygon):
             raise ValueError("The field outline crosses itself. Draw it again without crossing lines.")
+        return self
 
+
+class NdviRequest(FieldPolygon):
+    start: date | None = Field(default=None, alias="from", description="First day. Default: 12 months ago.")
+    end: date | None = Field(default=None, alias="to", description="Last day. Default: today.")
+    interval_days: int = Field(default=10, ge=5, le=31, alias="intervalDays")
+
+    @model_validator(mode="after")
+    def check(self) -> "NdviRequest":
         today = date.today()
         self.end = min(self.end or today, today)
         self.start = self.start or self.end - timedelta(days=365)
@@ -54,3 +60,37 @@ class NdviResponse(BaseModel):
     area_hectares: float = Field(serialization_alias="areaHectares")
     interval_days: int = Field(serialization_alias="intervalDays")
     series: list[NdviPoint]
+
+
+class Evidence(BaseModel):
+    text: str
+    source: str
+
+
+class TerrainResponse(BaseModel):
+    source: str
+    elevation_m: float = Field(serialization_alias="elevationM")
+    slope_mean_pct: float = Field(serialization_alias="slopeMeanPct")
+    slope_p90_pct: float = Field(
+        serialization_alias="slopeP90Pct", description="9 in 10 field pixels are flatter."
+    )
+    steep_share: float = Field(
+        serialization_alias="steepShare", description="Share of the field steeper than 5 %."
+    )
+    erosion_risk: str = Field(serialization_alias="erosionRisk", description="low | moderate | high")
+    pixels: int
+    evidence: list[Evidence]
+
+
+class WaterTrendResponse(BaseModel):
+    source: str
+    start: date
+    end: date
+    months: int
+    trend_cm_per_year: float = Field(serialization_alias="trendCmPerYear")
+    early_cm: float = Field(
+        serialization_alias="earlyCm", description="Mean anomaly of the first 3 years, cm."
+    )
+    late_cm: float = Field(serialization_alias="lateCm", description="Mean anomaly of the last 3 years, cm.")
+    status: str = Field(description="falling | stable | rising")
+    evidence: list[Evidence]

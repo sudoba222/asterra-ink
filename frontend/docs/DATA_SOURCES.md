@@ -122,3 +122,9 @@ NASA POWER monthly T2M, T2M_MIN, PRECTOTCORR, 2005 to the last full year (no key
 ## NASA SMAP soil moisture as evidence (`GET /api/smap?lat=&lon=`)
 
 SMAP L4 analyzed root-zone soil moisture (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`, 9 km, daily) read from NASA GIBS paletted tiles through the official colormap (`SMAP_Analyzed_Soil_Moisture.xml`, m³/m³), same method as the MODIS NDVI reader. No key. Latest day plus the same day a year earlier; GIBS has gaps (e.g. 10 Oct–11 Dec 2025), so the nearest available day within ±5 weeks is used and its date is shown. Rule: a change of 10 % or more is "drier" / "wetter". Answers `{ now, lastYear, evidence }`; pass `evidence` to `fieldEvidence(ctx, ndvi, [...trend.evidence, ...smap.evidence])`. Code: `src/shared/api/nasa/gibs-smap.ts`, `src/entities/climate/lib/smap-evidence.ts`.
+
+## Slope and regional water (NASA Earthdata, via the backend)
+
+- `POST /api/field-terrain` → backend `POST /fields/terrain`: NASA NASADEM (SRTM, 30 m) slope, height and erosion risk.
+- `GET /api/water-trend?lat=&lon=` → backend `GET /water/trend`: NASA/JPL GRACE & GRACE-FO water-storage trend.
+- Both go into the strategies: `fieldEvidence(ctx, ndvi, [...trend.evidence, ...smap.evidence], terrain, water)`. High erosion risk explains Soil-health and warns the others; falling water storage explains Water-saving and flags plans with high-water crops. Rules: `backend/README.md`.

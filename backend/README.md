@@ -9,6 +9,8 @@ Live at https://api.asterra.ink (interactive docs: https://api.asterra.ink/api/v
 |---|---|---|
 | GET | `/api/v1/health` | `{"status": "ok", "environment": "...", "copernicus": "configured" \| "missing"}` |
 | POST | `/api/v1/fields/ndvi` | NDVI of a field over time from Copernicus Sentinel-2 L2A (cloudy pixels removed) |
+| POST | `/api/v1/fields/terrain` | Slope, height and water-erosion risk of a field from NASA NASADEM (30 m). Body `{"polygon": [[lon, lat], ...]}` |
+| GET | `/api/v1/water/trend?lat=&lon=` | Trend of water stored on and under the land from NASA/JPL GRACE & GRACE-FO (≈300 km), cm/year |
 
 ### `POST /api/v1/fields/ndvi`
 
@@ -79,3 +81,10 @@ Tests never call Copernicus; they use a fake that answers like it.
 | `app/geometry.py` | polygon checks and area in hectares |
 | `app/schemas.py` | request and answer models |
 | `app/errors.py` | one error format for everything |
+
+## NASA Earthdata (terrain and water trend)
+
+Both need `ASTERRA_EARTHDATA_TOKEN` (https://urs.earthdata.nasa.gov → Generate Token; it expires every 60 days). Without it they answer `503 EARTHDATA_NOT_CONFIGURED`; an expired token gives `502 EARTHDATA_AUTH_FAILED`. Health shows `"earthdata": "configured" | "missing"`.
+
+- **Terrain:** downloads the field's 1° NASADEM tile once (~11 MB zip → 26 MB grid in the cache volume), then reads only the rows under the field. Slope by Horn's method on pixels inside the field. Erosion risk (indicative): high if mean slope ≥ 5 % or ≥ 30 % of the field steeper than 5 %; moderate if mean ≥ 2 % or ≥ 10 % steeper than 5 %; low otherwise.
+- **Water trend:** finds the newest JPL mascon file in NASA's catalog (CMR), downloads it once per release (~44 MB), reads one 0.5° cell. Least-squares trend over the whole record; falling ≤ −0.5 cm/yr, rising ≥ +0.5 cm/yr. GRACE sees total water storage (groundwater + soil + snow + surface) over ≈300 km, not one field.

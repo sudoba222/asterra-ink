@@ -46,3 +46,13 @@ def self_intersects(points: list[Point]) -> bool:
             if _segments_cross(*edges[i], *edges[j]):
                 return True
     return False
+
+
+def point_in_ring(lon: float, lat: float, points: list[Point]) -> bool:
+    """Ray casting; the ring may be open or closed."""
+    inside = False
+    ring = close_ring(points)
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:], strict=False):
+        if (y1 > lat) != (y2 > lat) and lon < (x2 - x1) * (lat - y1) / (y2 - y1) + x1:
+            inside = not inside
+    return inside

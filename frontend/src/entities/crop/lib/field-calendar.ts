@@ -53,8 +53,39 @@ export interface FieldCalendar {
   dryMonths: number[];
 }
 
+/** Answer of the ASTERRA backend `POST /fields/terrain` (NASA NASADEM, 30 m). */
+export interface FieldTerrain {
+  source: string;
+  elevationM: number;
+  slopeMeanPct: number;
+  slopeP90Pct: number;
+  steepShare: number;
+  erosionRisk: "low" | "moderate" | "high";
+  pixels: number;
+  evidence: EvidenceLine[];
+}
+
+/** Answer of the ASTERRA backend `GET /water/trend` (NASA/JPL GRACE & GRACE-FO, ≈300 km). */
+export interface WaterTrendInfo {
+  source: string;
+  start: string;
+  end: string;
+  months: number;
+  trendCmPerYear: number;
+  earlyCm: number;
+  lateCm: number;
+  status: "falling" | "stable" | "rising";
+  evidence: EvidenceLine[];
+}
+
 /** Field facts the strategy comparison uses as evidence. */
 export interface FieldEvidence {
+  /** Water-erosion risk from the field's slope (NASA NASADEM). */
+  erosionRisk?: FieldTerrain["erosionRisk"];
+  slopeMeanPct?: number;
+  /** Regional water-storage trend (GRACE). */
+  waterTrend?: WaterTrendInfo["status"];
+  waterTrendCmPerYear?: number;
   calendar?: FieldCalendar;
   /** Clear Sentinel-2 views in the last 12 months. */
   clearNdviViews?: number;
@@ -145,7 +176,13 @@ export function greenSeasons(ndvi: NdviObservation[]): number {
 }
 
 /** Everything the strategy comparison needs from the field page's data, as one object. */
-export function fieldEvidence(ctx: ClimateContext, ndvi: NdviObservation[] = [], extra: EvidenceLine[] = []): FieldEvidence {
+export function fieldEvidence(
+  ctx: ClimateContext,
+  ndvi: NdviObservation[] = [],
+  extra: EvidenceLine[] = [],
+  terrain?: FieldTerrain | null,
+  water?: WaterTrendInfo | null,
+): FieldEvidence {
   const views = clearViews(ndvi);
   const calendar = fieldCalendar(ctx, ndvi);
   const seasons = greenSeasons(ndvi);
@@ -163,5 +200,15 @@ export function fieldEvidence(ctx: ClimateContext, ndvi: NdviObservation[] = [],
     });
   }
   if (calendar.bareMonths.length) evidence.push({ text: `The soil was bare in ${monthRanges(calendar.bareMonths)}.`, source: "Copernicus Sentinel-2" });
-  return { calendar, clearNdviViews: views.length, greenSeasons: seasons, peakNdvi, evidence: [...evidence, ...extra] };
+  return {
+    calendar,
+    clearNdviViews: views.length,
+    greenSeasons: seasons,
+    peakNdvi,
+    erosionRisk: terrain?.erosionRisk,
+    slopeMeanPct: terrain?.slopeMeanPct,
+    waterTrend: water?.status,
+    waterTrendCmPerYear: water?.trendCmPerYear,
+    evidence: [...evidence, ...(terrain?.evidence ?? []), ...(water?.evidence ?? []), ...extra],
+  };
 }
