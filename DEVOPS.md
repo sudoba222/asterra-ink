@@ -24,7 +24,7 @@ Browser ──HTTPS──▶  Hetzner server ┌─────┴────�
                                    │   api.asterra.ink  → api:8000  (FastAPI)    │
                                    └─────────────────────────────────────────────┘
                                          web ──▶ NASA POWER, NASA GIBS, …
-                                         api ──▶ Copernicus (Sentinel-2 NDVI)
+                                         web ──▶ api (http://api:8000, internal) ──▶ Copernicus (Sentinel-2 NDVI)
 ```
 
 ## How a change goes live

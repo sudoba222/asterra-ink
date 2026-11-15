@@ -1,6 +1,9 @@
 services:
   web:
     build: ./frontend
+    environment:
+      # Route handlers call the backend over the internal Docker network (no internet hop, no CORS).
+      ASTERRA_API_URL: http://api:8000/api/v1
     restart: unless-stopped
     logging: { options: { max-size: "10m", max-file: "3" } }
 
