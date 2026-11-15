@@ -1,8 +1,7 @@
 import type { FarmerProfile } from "../model/farmer-profile";
-import type { RotationStrategy } from "./compare-strategies";
+import { compareStrategies, type RotationStrategy } from "./compare-strategies";
 import type { ClimateContext } from "./engine-types";
 import type { FieldEvidence } from "./field-calendar";
-import { MOCK_ROTATION_STRATEGIES } from "./mock-rotation-strategies";
 
 /** What the rotation-strategy screen and the PDF report render. */
 export interface StrategyComparison {
@@ -18,11 +17,13 @@ export interface StrategyComparison {
  *
  *   return { strategies: compareStrategies(profile, ctx, field), illustrative: false };
  *
- * Until then it returns the illustrative sample, which does not react to the farmer's answers.
+ * Real data since the strategy logic landed: the farmer's answers + NASA/Copernicus field evidence.
+ * `MOCK_ROTATION_STRATEGIES` stays available for tests and design work.
  */
 export function getStrategyComparison(profile: FarmerProfile, ctx: ClimateContext, field?: FieldEvidence): StrategyComparison {
-  void profile;
-  void ctx;
-  void field;
-  return { strategies: MOCK_ROTATION_STRATEGIES, illustrative: true };
+  return { strategies: compareStrategies(profile, ctx, field), illustrative: false };
 }
+
+/** "Supports, not replaces": shown under the strategies on screen and in the PDF report. */
+export const STRATEGY_DISCLAIMER =
+  "ASTERRA suggests options from satellite and climate data. It does not replace your own experience or a local agronomist. Check the points marked “Check locally” before you change your rotation.";
