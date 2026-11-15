@@ -39,3 +39,4 @@ jobs:
         run: |
           sleep 10
           curl -fsS --retry 10 --retry-delay 6 --retry-all-errors -o /dev/null https://asterra.ink
+          curl -fsS --retry 10 --retry-delay 6 --retry-all-errors https://api.asterra.ink/api/v1/health
