@@ -63,7 +63,8 @@ describe("mock rotation strategies (illustrative)", () => {
     }
   });
 
-  it("is what the data source returns, flagged as illustrative", () => {
-    expect(getStrategyComparison(profile({}), TEMPERATE)).toEqual({ strategies: MOCK_ROTATION_STRATEGIES, illustrative: true });
+  it("is no longer what the data source returns: it now gives the real strategies", () => {
+    const p = profile({ previousCrops: ["wheat", "maize"] });
+    expect(getStrategyComparison(p, TEMPERATE)).toEqual({ strategies: compareStrategies(p, TEMPERATE), illustrative: false });
   });
 });

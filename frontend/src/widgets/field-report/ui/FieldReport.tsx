@@ -12,6 +12,7 @@ import {
   confidenceExplanation,
   describeProfile,
   seasonWindow,
+  STRATEGY_DISCLAIMER,
   type CandidateResult,
   type CheckKind,
   type CropPlanResult,
@@ -211,6 +212,7 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
       {strategies && (
         <Section n={planN + 1} title="Rotation strategies: next 3 seasons" flow pageBreak>
           <RotationStrategies comparison={strategies} />
+          <p className="mt-3 text-[10.5px] leading-snug text-[#6B4A12]">{STRATEGY_DISCLAIMER}</p>
         </Section>
       )}
 
