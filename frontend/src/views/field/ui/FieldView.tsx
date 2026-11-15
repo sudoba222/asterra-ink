@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { EnvironmentalProfile } from "@/entities/climate";
-import { EMPTY_PROFILE, LAND_CHECK_FAILED, evaluateFieldRotation, type CropPlanResult, type FarmerProfile } from "@/entities/crop";
+import {
+  EMPTY_PROFILE,
+  LAND_CHECK_FAILED,
+  evaluateFieldRotation,
+  getStrategyComparison,
+  type CropPlanResult,
+  type FarmerProfile,
+  type StrategyComparison,
+} from "@/entities/crop";
 import { useShellMode } from "@/entities/exploration";
 import { FieldOutline, ringBBox, useField, type Field } from "@/entities/field";
 import { useFieldConditions } from "@/entities/field-conditions";
@@ -15,6 +23,7 @@ import { StateMessage } from "@/shared/ui";
 import { CropRotation, climateContext } from "@/widgets/crop-rotation";
 import { DashboardSkeleton, FieldDashboard } from "@/widgets/field-dashboard";
 import { FieldReport, ReportCard, useFieldPhoto } from "@/widgets/field-report";
+import { RotationStrategiesSection } from "@/widgets/rotation-strategies";
 
 /** /field/[id]: saved field → map focus + simple dashboard. */
 export function FieldView({ id }: { id: string }) {
@@ -64,6 +73,12 @@ function FieldLoaded({ field }: { field: Field }) {
   // null while the land check runs: no crop is evaluated before the land is known.
   const landVerdict = land.status === "success" ? land.data : land.status === "error" ? LAND_CHECK_FAILED : null;
   const rotation = useMemo(() => (landVerdict ? evaluateFieldRotation(farmer, ctx, landVerdict) : null), [farmer, ctx, landVerdict]);
+  // The three rotation strategies, shown under the questionnaire and in the PDF. Same gate as the crop list:
+  // nothing for land that can't be farmed or while climate data is missing.
+  const strategies = useMemo(
+    () => (ctx && rotation && rotation.status !== "unsuitable_land" ? getStrategyComparison(farmer, ctx) : null),
+    [farmer, ctx, rotation],
+  );
   const photo = useFieldPhoto(field);
 
   const reportReady =
@@ -81,7 +96,7 @@ function FieldLoaded({ field }: { field: Field }) {
       <FieldDashboard
         field={field}
         conditions={conditions}
-        plan={<PlanNextCrop land={land} climate={climate} farmer={farmer} onFarmerChange={setFarmer} rotation={rotation} />}
+        plan={<PlanNextCrop land={land} climate={climate} farmer={farmer} onFarmerChange={setFarmer} rotation={rotation} strategies={strategies} />}
         landNotice={land.data?.status === "unsuitable_land" ? <LandNotice land={land.data} /> : undefined}
         footer={<ReportCard fieldName={field.name} ready={reportReady} />}
       />
@@ -92,6 +107,7 @@ function FieldLoaded({ field }: { field: Field }) {
         farmer={farmer}
         rotation={rotation}
         rotationError={climate.error?.message ?? null}
+        strategies={strategies}
         land={land.data}
         photo={photo}
       />
@@ -105,12 +121,14 @@ function PlanNextCrop({
   farmer,
   onFarmerChange,
   rotation,
+  strategies,
 }: {
   land: LandSuitabilityState;
   climate: ClimateState;
   farmer: FarmerProfile;
   onFarmerChange: (next: FarmerProfile) => void;
   rotation: CropPlanResult | null;
+  strategies: StrategyComparison | null;
 }) {
   if (land.status === "loading") return <p className="text-[13px] text-ink-muted">Checking that this area is farmland (satellite land cover and map data)…</p>;
   // Unsuitable land: the land notice replaces the questionnaire and every candidate.
@@ -142,6 +160,11 @@ function PlanNextCrop({
         </div>
       )}
       <CropRotation farmer={farmer} onFarmerChange={onFarmerChange} result={rotation} />
+      {strategies && (
+        <div className="mt-6 border-t border-line pt-6">
+          <RotationStrategiesSection comparison={strategies} />
+        </div>
+      )}
     </div>
   );
 }
