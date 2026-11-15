@@ -61,6 +61,24 @@ These are transparent rules of thumb, unit-tested in `assess.test.ts`. There is 
 | Space backdrop | Generated in the browser | Seeded star field and three faint distant planets drawn on canvas as Cesium's sky box; Cesium's real-position sun and moon and its sky atmosphere. No external assets |
 | Field area | Computed in the browser | Spherical polygon area (Chamberlain & Duquette 2007, as in turf.js v7, mean Earth radius). Checked against an independent planar calculation to within 0.01 % |
 
+## Land check before crop planning (`POST /api/land-suitability`)
+
+Before any crop is recommended, the saved polygon is checked to confirm it is land that can be farmed
+(`src/entities/land-suitability`). The check uses land-cover and map data only, never climate. It runs on
+the **whole polygon**, not just its centre.
+
+| Source | What it sees | How |
+| --- | --- | --- |
+| ESA WorldCover 2021 v200 (10 m, Copernicus Sentinel-1/2, CC BY 4.0) | Built-up, permanent water, snow/ice, cropland… | Public Cloud-Optimised GeoTIFFs on AWS Open Data (no key). The server reads the header, then only the 1024² tiles under the field (HTTP range requests, `node:zlib`, no extra dependency). It counts every pixel whose centre is inside the polygon, and uses an overview level for very large fields. Code: `src/shared/lib/cog-raster.ts`, `src/shared/api/esa-worldcover.ts` |
+| OpenStreetMap via Overpass (ODbL) | Building footprints, lakes/reservoirs/riverbanks, rivers and canals, roads (by width/lanes), rail, runways, parking, non-farm land use (industrial, cemetery, quarry…) | Features crossing the polygon plus large areas enclosing its centre. A grid of up to 2,500 points (≥ 1 m apart) is tested against them; lines count within half their width. Farm tracks, paths, ditches, tunnels and seasonal water are ignored. Residential land only adds a note, because household plots are farmed. Code: `src/shared/api/osm-overpass.ts`, `src/entities/land-suitability/lib/osm-coverage.ts`. Endpoints are tried in order (`OVERPASS_API_URL`, comma-separated) |
+
+**Rules** (`lib/classify.ts`, unit-tested):
+
+- `unsuitable_land`: mapped OSM geometry covers ≥ 50 % of the field, **or** WorldCover water/built-up/snow covers ≥ 70 %, **or** OSM ≥ 30 % and WorldCover ≥ 50 % together. The reason is `building_detected`, `water_detected`, `infrastructure_detected`, `built_up_area_detected` or `non_agricultural_land_use`. The crop engine is then **not run** (`evaluateFieldRotation` in `entities/crop/lib/land-gate.ts`): no candidates, scores or notes.
+- `uncertain`: data is missing (`land_cover_unavailable`), or the sources disagree (`sources_disagree`: e.g. satellite built-up but no mapped buildings, which is typical for plastic greenhouses), or the cover is mixed at 50–70 % (`mixed_land_cover`). Without OSM, WorldCover must show ≥ 50 % cropland to confirm the land, because 10 m pixels miss narrow roads and streets under trees. Crops are still shown, with a caution.
+- `suitable`: partial cover ≥ 10 % (e.g. a farmhouse) is added as a note to the crop plan.
+- **Limits:** WorldCover reflects 2021; OSM completeness varies by region. Public Overpass servers are often at capacity, so for production point `OVERPASS_API_URL` at your own instance.
+
 ## Crop planning ("More details → Plan your next crop")
 
 - NASA POWER monthly point for the field's centre (`GET /api/environment`), with FAO-56 ET₀ and the climatic water balance.
