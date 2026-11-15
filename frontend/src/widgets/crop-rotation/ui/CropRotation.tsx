@@ -252,7 +252,7 @@ function CandidateRow({ c, rank }: { c: CandidateResult; rank?: number }) {
   );
 }
 
-function MetaChip({ icon: Icon, srLabel, children }: { icon: LucideIcon; srLabel: string; children: string }) {
+export function MetaChip({ icon: Icon, srLabel, children }: { icon: LucideIcon; srLabel: string; children: string }) {
   // nowrap: a chip never breaks inside itself; on very narrow cards a long label ellipsizes (full text in the tooltip).
   return (
     <span title={children} className="inline-flex max-w-full items-center gap-1 rounded-full bg-mist px-2 py-0.5 text-[11.5px] leading-[18px] whitespace-nowrap text-ink/70">
@@ -265,7 +265,7 @@ function MetaChip({ icon: Icon, srLabel, children }: { icon: LucideIcon; srLabel
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function CropThumb({ id, name, muted }: { id: string; name: string; muted: boolean }) {
+export function CropThumb({ id, name, muted }: { id: string; name: string; muted: boolean }) {
   const photo = cropPhoto(id);
   const box = "size-14 shrink-0 rounded-xl border border-black/5 bg-mist";
   if (!photo) {

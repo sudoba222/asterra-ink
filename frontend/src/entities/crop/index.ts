@@ -5,3 +5,4 @@ export * from "./lib/rotation-engine";
 export * from "./lib/land-gate";
 export * from "./lib/field-calendar";
 export * from "./lib/compare-strategies";
+export { useFieldTerrain } from "./api/use-field-terrain";
