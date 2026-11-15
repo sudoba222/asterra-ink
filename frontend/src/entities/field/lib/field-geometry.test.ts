@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { LonLat } from "../model/types";
 import { areaHectares } from "./area";
+import { ringToSvgPath } from "./geometry";
 import { isSelfIntersecting, validateField } from "./validate";
 
 /** Square of `sideM` metres centred at lat/lon (small-area approximation for the test input). */
@@ -57,5 +58,28 @@ describe("field validation", () => {
   it("needs 3 corners and a minimum size", () => {
     expect(validateField(square(0, 0, 100).slice(0, 2))).toBe("too-few-points");
     expect(validateField(square(0, 0, 5))).toBe("too-small");
+  });
+});
+
+describe("ringToSvgPath", () => {
+  const coords = (d: string) => d.slice(1, -1).split("L").map((p) => p.split(",").map(Number));
+
+  it("keeps a square square at high latitude and fits it inside the padded box", () => {
+    const pts = coords(ringToSvgPath(square(60, 10, 200), 100, 10));
+    const xs = pts.map((p) => p[0]);
+    const ys = pts.map((p) => p[1]);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(80, 0);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(80, 0);
+    expect(Math.min(...xs)).toBeGreaterThanOrEqual(9.9);
+  });
+
+  it("puts north at the top", () => {
+    const pts = coords(ringToSvgPath(square(0, 0, 100)));
+    // square() lists the southern corners first → larger y values
+    expect(pts[0][1]).toBeGreaterThan(pts[2][1]);
+  });
+
+  it("returns an empty path for degenerate input", () => {
+    expect(ringToSvgPath([])).toBe("");
   });
 });

@@ -10,8 +10,10 @@ type State =
   | { status: "success"; data: FieldConditions; error: null }
   | { status: "error"; data: FieldConditions | null; error: string };
 
+export type FieldConditionsState = State & { retry: () => void };
+
 /** POSTs the field polygon to /api/field-conditions. */
-export function useFieldConditions(polygon: LonLat[] | null) {
+export function useFieldConditions(polygon: LonLat[] | null): FieldConditionsState {
   const [state, setState] = useState<State>({ status: "loading", data: null, error: null });
   const [attempt, setAttempt] = useState(0);
   const key = polygon ? JSON.stringify(polygon) : null;

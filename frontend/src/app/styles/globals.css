@@ -150,3 +150,25 @@ body {
     animation: none;
   }
 }
+
+/* PDF field report (widgets/field-report): on a page that mounts the report, printing shows only it. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 13mm;
+  }
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  body:has(> [data-print-report]) > :not([data-print-report]) {
+    display: none !important;
+  }
+  [data-print-report] {
+    display: block !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

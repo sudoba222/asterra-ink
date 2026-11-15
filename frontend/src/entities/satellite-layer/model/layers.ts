@@ -65,6 +65,22 @@ export const HIGH_RES_IMAGERY = {
   showBelowM: 1_500_000,
 } as const;
 
+/**
+ * One still image of Esri World Imagery for a Web Mercator box (MapServer `export`, CORS-enabled).
+ * Used for the satellite photo in the printable field report.
+ */
+export function imageryExportUrl(bbox: [number, number, number, number], sizePx: number): string {
+  const q = new URLSearchParams({
+    bbox: bbox.map((v) => v.toFixed(1)).join(","),
+    bboxSR: "3857",
+    imageSR: "3857",
+    size: `${sizePx},${sizePx}`,
+    format: "jpg",
+    f: "image",
+  });
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?${q}`;
+}
+
 export const SATELLITE_LAYERS: SatelliteLayer[] = [
   {
     id: "truecolor",
