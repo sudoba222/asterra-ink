@@ -11,12 +11,14 @@ import {
   comparisonRows,
   confidenceExplanation,
   describeProfile,
+  monthsInGround,
   seasonWindow,
   STRATEGY_DISCLAIMER,
   type CandidateResult,
   type CheckKind,
   type CropPlanResult,
   type FarmerProfile,
+  type FieldCalendar,
   type RotationStrategy,
   type Signal,
   type StrategyComparison,
@@ -24,7 +26,7 @@ import {
 import { formatHectares, placeLabel, ringToSvgPath, type Field } from "@/entities/field";
 import { shortDate, summariseHistory, type CardState, type FieldConditions, type Level } from "@/entities/field-conditions";
 import type { LandSuitability } from "@/entities/land-suitability";
-import { formatCoord, formatNumber } from "@/shared/lib";
+import { formatCoord, formatNumber, monthName } from "@/shared/lib";
 import { Logo } from "@/shared/ui";
 import type { FieldPhoto } from "../model/use-field-photo";
 
@@ -38,6 +40,8 @@ interface Props {
   rotationError: string | null;
   /** The three rotation strategies shown under the questionnaire (null when there's no crop plan). */
   strategies: StrategyComparison | null;
+  /** Field sources the strategies couldn't use (failed to load), named under the strategies. */
+  strategySourcesMissing?: string[];
   /** Land check result (null while unknown or if the check failed). */
   land: LandSuitability | null;
   photo: FieldPhoto;
@@ -96,7 +100,7 @@ export function FieldReport(props: Props) {
   );
 }
 
-function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, strategies, land, photo }: Props) {
+function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, strategies, strategySourcesMissing = [], land, photo }: Props) {
   const [printedAt, setPrintedAt] = useState(() => new Date());
   useEffect(() => {
     const onBefore = () => setPrintedAt(new Date());
@@ -211,7 +215,7 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
 
       {strategies && (
         <Section n={planN + 1} title="Rotation strategies: next 3 seasons" flow pageBreak>
-          <RotationStrategies comparison={strategies} />
+          <RotationStrategies comparison={strategies} missing={strategySourcesMissing} />
           <p className="mt-3 text-[10.5px] leading-snug text-[#6B4A12]">{STRATEGY_DISCLAIMER}</p>
         </Section>
       )}
@@ -558,18 +562,19 @@ function Checks({ checks }: { checks: CandidateResult["checks"] }) {
 }
 
 /** Same strategies and comparison as the on-screen section, laid out for A4. */
-function RotationStrategies({ comparison }: { comparison: StrategyComparison }) {
-  const { strategies, illustrative } = comparison;
+function RotationStrategies({ comparison, missing }: { comparison: StrategyComparison; missing: string[] }) {
+  const { strategies, calendar } = comparison;
   const rows = comparisonRows(strategies);
   const titleWidth = `${Math.floor(78 / Math.max(1, strategies.length))}%`;
   return (
     <div className="space-y-3">
-      {illustrative && (
+      {missing.length > 0 && (
         <p className="break-inside-avoid rounded-md border border-[#F0DDBD] bg-[#FBF5EA] px-3 py-2 text-[#6B4A12]">
-          <b className="font-semibold">Sample plans, for illustration only.</b> These three rotations use example data, not this field’s data, and don’t change
-          with the answers above. Don’t plan a season from them.
+          <b className="font-semibold">Not used (unavailable when this report was made):</b> {missing.join(", ")}.
         </p>
       )}
+
+      {calendar && <FieldYearTable calendar={calendar} />}
 
       {strategies.map((s) => (
         <StrategyBlock key={s.id} s={s} />
@@ -629,7 +634,7 @@ function StrategyBlock({ s }: { s: RotationStrategy }) {
       {s.available ? (
         <>
           <div className="mt-2">
-            <Table head={["Season", "Crop", "Plant", "Harvest", "Note"]} widths={["13%", "27%", "12%", "12%", "36%"]}>
+            <Table head={["Season", "Crop", "Plant", "Harvest", "In the ground (J–D)", "Note"]} widths={["11%", "21%", "9%", "9%", "26%", "24%"]}>
               {s.seasons.map((x, i) => {
                 const w = seasonWindow(x);
                 const bare = bareMonthsAfter(s.seasons, i);
@@ -642,6 +647,9 @@ function StrategyBlock({ s }: { s: RotationStrategy }) {
                     <Td className="font-semibold">{x.cropName}</Td>
                     <Td>{w.plant}</Td>
                     <Td>{w.harvest}</Td>
+                    <Td>
+                      <MonthBoxes on={new Set(monthsInGround(x))} color="#173E32" />
+                    </Td>
                     <Td className="text-[#5F6B60]">{notes.join(", ") || "—"}</Td>
                   </tr>
                 );
@@ -661,6 +669,69 @@ function StrategyBlock({ s }: { s: RotationStrategy }) {
           <Unavailable>{s.unavailableReason ?? "This plan can’t be built for this field."}</Unavailable>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Twelve small boxes, Jan–Dec, filled where `on` has the month (1–12). */
+function MonthBoxes({ on, color }: { on: Set<number>; color: string }) {
+  return (
+    <span className="inline-flex gap-[1.5px] align-middle">
+      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+        <span
+          key={m}
+          className="inline-block h-[7px] w-[7px] rounded-[1.5px]"
+          style={{ backgroundColor: on.has(m) ? color : "#EEF3EA" }}
+        />
+      ))}
+    </span>
+  );
+}
+
+/** The 12-month strip for print: the field's last year, bare / frost / hot / dry by month. */
+function FieldYearTable({ calendar }: { calendar: FieldCalendar }) {
+  const rows: Array<[string, number[], string]> = [
+    ["Bare (Sentinel-2)", calendar.bareMonths, "#A9825A"],
+    ["Frost (NASA POWER)", calendar.frostMonths, "#3B6E8F"],
+    ["Hot (NASA POWER)", calendar.heatMonths, "#C2410C"],
+    ["Dry (NASA POWER)", calendar.dryMonths, "#B7791F"],
+  ];
+  const noView = new Set(calendar.months.filter((m) => m.bare === null).map((m) => m.month));
+  return (
+    <div className="break-inside-avoid">
+      <p className="mb-1 font-semibold">This field’s last 12 months</p>
+      <table className="border-collapse">
+        <thead>
+          <tr>
+            <th />
+            {calendar.months.map((m) => (
+              <th key={m.month} className="w-[18px] text-center text-[8.5px] font-medium text-[#5F6B60]">
+                {monthName(m.month - 1).charAt(0)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(([label, months, color], r) => (
+            <tr key={label}>
+              <td className="pr-3 text-[9px] text-[#5F6B60]">{label}</td>
+              {calendar.months.map((m) => {
+                const unknown = r === 0 && noView.has(m.month);
+                return (
+                  <td key={m.month} className="p-[1px] text-center">
+                    <span
+                      className="inline-block h-[9px] w-[15px] rounded-[2px] align-middle"
+                      style={unknown ? { border: "0.5px dashed #A3ADA4" } : { backgroundColor: months.includes(m.month) ? color : "#EEF3EA" }}
+                    />
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-1">{calendar.sentence}</p>
+      {noView.size > 0 && <p className="text-[8.5px] text-[#5F6B60]">Dashed: no clear satellite view that month.</p>}
     </div>
   );
 }

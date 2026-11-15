@@ -100,7 +100,12 @@ as GeoJSON from the field page.
 | Water-saving | Best-scoring crop with low water need (low or medium if irrigated) that passes the climate checks; no family back before its rest period (`FAMILY_ROTATION`) |
 | Soil-health | Legume early (not right after a legume), no family back before its rest period, ranked by score + 2 × soil value (legume +1, deep roots +1, high residue +1 / medium +0.5) |
 
-Each plan returns why / evidence (with source) / benefits / what we don't know / check locally, a confidence level with its reason, and metrics (water, legume seasons, family repeats, climate-fit seasons, bare months, risk flags). "Fits your goal": water → Water-saving, soil → Soil-health, risk → fewest risk flags, yield/profit → most climate-fit seasons (ties: fewer risks, then fewer family repeats). Crop facts `rootDepth`, `residue`, `forage` in the catalog are indicative.
+**On the field page** (`getStrategyComparison` in `strategy-comparison-source.ts`, fed by `views/field/model/use-strategy-evidence.ts`) the strategies run on real data only:
+`compareStrategies(profile, ctx, fieldEvidence(ctx, ndvi, [...trend.evidence, ...smap.evidence], terrain, water))`, with Sentinel-2 NDVI (`POST /api/field-ndvi`, shared with the NDVI chart), the 20-year trend (`GET /api/climate-trend`), SMAP (`GET /api/smap`), slope (`POST /api/field-terrain`) and the GRACE water trend (`GET /api/water-trend`). Each source is optional: the plans appear as soon as the planning climate is loaded and update as each source arrives. A source that fails is left out and named ("Not available right now: …") on screen and in the PDF. There is no sample-data fallback. The PDF waits until every source has answered or failed.
+
+Each plan returns why / evidence (with source) / benefits / what we don't know / check locally, a confidence level with its reason, and metrics (water, legume seasons, family repeats, climate-fit seasons, bare months, risk flags).
+
+**12-month strip.** Above the cards, "Your field's year" draws `fieldCalendar()` month by month (Bare / Frost / Hot / Dry, rules below; dashed = no clear satellite view). Each card has a Jan–Dec bar with one row per season showing the months its crop is in the ground (`monthsInGround`), with the field's frost, hot or dry months marked underneath. The PDF has the same strip as a table plus an "In the ground (J–D)" column per season. "Fits your goal": water → Water-saving, soil → Soil-health, risk → fewest risk flags, yield/profit → most climate-fit seasons (ties: fewer risks, then fewer family repeats). Crop facts `rootDepth`, `residue`, `forage` in the catalog are indicative.
 
 ## Field calendar (`fieldCalendar`, `fieldEvidence`)
 

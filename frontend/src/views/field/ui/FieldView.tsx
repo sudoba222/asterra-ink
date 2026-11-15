@@ -7,29 +7,25 @@ import {
   EMPTY_PROFILE,
   LAND_CHECK_FAILED,
   evaluateFieldRotation,
-  fieldEvidence,
   getStrategyComparison,
-  useFieldTerrain,
   type CropPlanResult,
   type FarmerProfile,
-  type FieldEvidence,
   type StrategyComparison,
-  type WaterTrendInfo,
 } from "@/entities/crop";
-import type { ClimateTrend } from "@/entities/climate";
-import { useNdviHistory } from "@/entities/ndvi-history";
 import { useShellMode } from "@/entities/exploration";
 import { FieldOutline, ringBBox, useField, type Field } from "@/entities/field";
 import { useFieldConditions } from "@/entities/field-conditions";
 import { LandNotice, useLandSuitability, type LandSuitabilityState } from "@/entities/land-suitability";
 import { flyToBBox, useMap } from "@/entities/map";
+import { useNdviHistory } from "@/entities/ndvi-history";
 import { LayerSwitcher } from "@/features/switch-map-layer";
 import { useFetchJson, type FetchState } from "@/shared/api";
 import { StateMessage } from "@/shared/ui";
 import { CropRotation, climateContext } from "@/widgets/crop-rotation";
 import { DashboardSkeleton, FieldDashboard } from "@/widgets/field-dashboard";
 import { FieldReport, ReportCard, useFieldPhoto } from "@/widgets/field-report";
-import { FieldYear, RotationStrategiesSection, StrategyDisclaimer } from "@/widgets/rotation-strategies";
+import { RotationStrategiesSection, StrategyDisclaimer } from "@/widgets/rotation-strategies";
+import { useStrategyEvidence, type StrategyEvidence } from "../model/use-strategy-evidence";
 
 /** /field/[id]: saved field → map focus + simple dashboard. */
 export function FieldView({ id }: { id: string }) {
@@ -65,8 +61,9 @@ export function FieldView({ id }: { id: string }) {
 type ClimateState = FetchState<EnvironmentalProfile> & { retry: () => void };
 
 /**
- * Owns every piece of field data (conditions, land check, planning climate, questionnaire answers)
- * so the dashboard, the crop plan and the printable PDF report all show the same thing.
+ * Owns every piece of field data (conditions, land check, planning climate, NDVI history, strategy
+ * evidence, questionnaire answers) so the dashboard, the crop plan and the printable PDF report all
+ * show the same thing.
  * The crop engine runs only after the land check says the polygon can be farmed.
  */
 function FieldLoaded({ field }: { field: Field }) {
@@ -76,28 +73,16 @@ function FieldLoaded({ field }: { field: Field }) {
   const climate = useFetchJson<EnvironmentalProfile>(climateUrl);
   const [farmer, setFarmer] = useState<FarmerProfile>(EMPTY_PROFILE);
   const ctx = useMemo(() => (climate.data ? climateContext(climate.data) : null), [climate.data]);
+  const ndvi = useNdviHistory(field.polygon);
+  const evidence = useStrategyEvidence(field, ctx, ndvi);
   // null while the land check runs: no crop is evaluated before the land is known.
   const landVerdict = land.status === "success" ? land.data : land.status === "error" ? LAND_CHECK_FAILED : null;
   const rotation = useMemo(() => (landVerdict ? evaluateFieldRotation(farmer, ctx, landVerdict) : null), [farmer, ctx, landVerdict]);
   // The three rotation strategies, shown under the questionnaire and in the PDF. Same gate as the crop list:
-  // nothing for land that can't be farmed or while climate data is missing.
-  // Field evidence for the strategies (each source cached server-side; a failure just leaves its lines out).
-  const point = new URLSearchParams({ lat: field.centroid.lat.toFixed(3), lon: field.centroid.lon.toFixed(3) }).toString();
-  const ndvi = useNdviHistory(field.polygon);
-  const trend = useFetchJson<ClimateTrend>(`/api/climate-trend?${point}`);
-  const smap = useFetchJson<{ evidence: Array<{ text: string; source: string }> }>(`/api/smap?${point}`);
-  const water = useFetchJson<WaterTrendInfo>(`/api/water-trend?${point}`);
-  const terrain = useFieldTerrain(field.polygon);
-  const evidence = useMemo<FieldEvidence | undefined>(
-    () =>
-      ctx
-        ? fieldEvidence(ctx, ndvi.data?.series ?? [], [...(trend.data?.evidence ?? []), ...(smap.data?.evidence ?? [])], terrain.data, water.data)
-        : undefined,
-    [ctx, ndvi.data, trend.data, smap.data, terrain.data, water.data],
-  );
+  // nothing for land that can't be farmed or while climate data is missing. They refine as each field source arrives.
   const strategies = useMemo(
-    () => (ctx && rotation && rotation.status !== "unsuitable_land" ? getStrategyComparison(farmer, ctx, evidence) : null),
-    [farmer, ctx, rotation, evidence],
+    () => (ctx && rotation && rotation.status !== "unsuitable_land" ? getStrategyComparison(farmer, ctx, evidence.field) : null),
+    [farmer, ctx, rotation, evidence.field],
   );
   const photo = useFieldPhoto(field);
 
@@ -105,6 +90,8 @@ function FieldLoaded({ field }: { field: Field }) {
     conditions.status !== "loading" &&
     land.status !== "loading" &&
     (rotation?.status === "unsuitable_land" || climate.status === "success" || climate.status === "error") &&
+    // The PDF prints the strategies, so wait for their field sources too (each may fail; then it's named as missing).
+    (!strategies || evidence.pending.length === 0) &&
     photo.status !== "loading";
 
   return (
@@ -116,17 +103,9 @@ function FieldLoaded({ field }: { field: Field }) {
       <FieldDashboard
         field={field}
         conditions={conditions}
+        ndvi={ndvi}
         plan={
-          <PlanNextCrop
-            land={land}
-            climate={climate}
-            farmer={farmer}
-            onFarmerChange={setFarmer}
-            rotation={rotation}
-            strategies={strategies}
-            calendar={evidence?.calendar ?? null}
-            trendSentence={trend.data?.sentence ?? null}
-          />
+          <PlanNextCrop land={land} climate={climate} farmer={farmer} onFarmerChange={setFarmer} rotation={rotation} strategies={strategies} evidence={evidence} />
         }
         landNotice={land.data?.status === "unsuitable_land" ? <LandNotice land={land.data} /> : undefined}
         footer={<ReportCard fieldName={field.name} ready={reportReady} />}
@@ -139,6 +118,7 @@ function FieldLoaded({ field }: { field: Field }) {
         rotation={rotation}
         rotationError={climate.error?.message ?? null}
         strategies={strategies}
+        strategySourcesMissing={evidence.unavailable}
         land={land.data}
         photo={photo}
       />
@@ -153,8 +133,7 @@ function PlanNextCrop({
   onFarmerChange,
   rotation,
   strategies,
-  calendar,
-  trendSentence,
+  evidence,
 }: {
   land: LandSuitabilityState;
   climate: ClimateState;
@@ -162,8 +141,7 @@ function PlanNextCrop({
   onFarmerChange: (next: FarmerProfile) => void;
   rotation: CropPlanResult | null;
   strategies: StrategyComparison | null;
-  calendar: FieldEvidence["calendar"] | null | undefined;
-  trendSentence: string | null;
+  evidence: StrategyEvidence;
 }) {
   if (land.status === "loading") return <p className="text-[13px] text-ink-muted">Checking that this area is farmland (satellite land cover and map data)…</p>;
   // Unsuitable land: the land notice replaces the questionnaire and every candidate.
@@ -197,8 +175,7 @@ function PlanNextCrop({
       <CropRotation farmer={farmer} onFarmerChange={onFarmerChange} result={rotation} />
       {strategies && (
         <div className="mt-6 space-y-4 border-t border-line pt-6">
-          {(calendar || trendSentence) && <FieldYear calendar={calendar ?? null} trendSentence={trendSentence} />}
-          <RotationStrategiesSection comparison={strategies} />
+          <RotationStrategiesSection comparison={strategies} pending={evidence.pending} unavailable={evidence.unavailable} />
           <StrategyDisclaimer />
         </div>
       )}

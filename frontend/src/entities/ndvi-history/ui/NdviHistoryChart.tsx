@@ -3,10 +3,9 @@
 import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { CartesianGrid, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { LonLat } from "@/entities/field";
 import { shortDate } from "@/entities/field-conditions";
 import { chart } from "@/shared/config";
-import { useNdviHistory } from "../api/use-ndvi-history";
+import type { NdviHistoryState } from "../api/use-ndvi-history";
 import { BARE_SOIL_NDVI, summarizeNdvi, type NdviPoint } from "../lib/summary";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -23,9 +22,12 @@ function Tip({ active, payload }: { active?: boolean; payload?: Array<{ payload:
   );
 }
 
-/** Last 12 months of Sentinel-2 NDVI (10 m) for the field, from the ASTERRA backend (Copernicus). */
-export function NdviHistoryChart({ polygon }: { polygon: LonLat[] }) {
-  const { status, data, error, retry } = useNdviHistory(polygon);
+/**
+ * Last 12 months of Sentinel-2 NDVI (10 m) for the field, from the ASTERRA backend (Copernicus).
+ * The page owns the request (`useNdviHistory`) because the rotation strategies use the same series.
+ */
+export function NdviHistoryChart({ history }: { history: NdviHistoryState }) {
+  const { status, data, error, retry } = history;
   const summary = useMemo(() => (data ? summarizeNdvi(data.series) : null), [data]);
 
   if (status === "loading") return <p className="text-[13px] text-ink-muted">Loading 12 months of Sentinel-2 satellite data…</p>;

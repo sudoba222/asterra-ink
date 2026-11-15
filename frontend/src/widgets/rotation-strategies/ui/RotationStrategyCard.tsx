@@ -1,7 +1,8 @@
 import { CircleCheck, Droplets, History, Sprout, type LucideIcon } from "lucide-react";
-import { STRATEGY_PURPOSE, type RotationStrategy, type RotationStrategyId } from "@/entities/crop";
+import { STRATEGY_PURPOSE, type FieldCalendar, type RotationStrategy, type RotationStrategyId } from "@/entities/crop";
 import { cn } from "@/shared/lib";
 import { ConfidenceIndicator } from "./ConfidenceIndicator";
+import { CropYearBar } from "./CropYearBar";
 import { SeasonTimeline } from "./SeasonTimeline";
 import { StrategyInformation } from "./StrategyInformation";
 
@@ -12,7 +13,7 @@ export const STRATEGY_ICON: Record<RotationStrategyId, LucideIcon> = { current: 
  * In the three-column layout the card is a subgrid row-span-4, so the same part lines up
  * across all three cards even when their text lengths differ.
  */
-export function RotationStrategyCard({ strategy }: { strategy: RotationStrategy }) {
+export function RotationStrategyCard({ strategy, calendar = null }: { strategy: RotationStrategy; calendar?: FieldCalendar | null }) {
   const Icon = STRATEGY_ICON[strategy.id];
   const titleId = `strategy-${strategy.id}`;
   const part = "px-4";
@@ -50,6 +51,7 @@ export function RotationStrategyCard({ strategy }: { strategy: RotationStrategy 
         <>
           <div className={cn(part, "pb-3")}>
             <SeasonTimeline seasons={strategy.seasons} />
+            <CropYearBar seasons={strategy.seasons} calendar={calendar} />
           </div>
           <ConfidenceIndicator strategy={strategy} className={cn(part, "border-t border-line py-3")} />
           <div className={cn(part, "border-t border-line pb-1")}>

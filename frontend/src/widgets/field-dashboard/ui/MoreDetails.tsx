@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { fieldRepository, formatHectares, toGeoJsonFeature, type Field } from "@/entities/field";
 import { shortDate, type FieldConditions } from "@/entities/field-conditions";
-import { NdviHistoryChart } from "@/entities/ndvi-history";
+import { NdviHistoryChart, type NdviHistoryState } from "@/entities/ndvi-history";
 import { useFieldDraft } from "@/features/draw-field";
 import { cn, formatCoord } from "@/shared/lib";
 import { RecentWeather } from "./RecentWeather";
@@ -13,7 +13,7 @@ import { RecentWeather } from "./RecentWeather";
 type Section = "weather" | "crop" | "plan" | "field";
 
 /** Everything beyond the four cards, collapsed by default. */
-export function MoreDetails({ field, data, plan }: { field: Field; data: FieldConditions | null; plan: ReactNode }) {
+export function MoreDetails({ field, data, ndvi, plan }: { field: Field; data: FieldConditions | null; ndvi: NdviHistoryState; plan: ReactNode }) {
   const [open, setOpen] = useState<Section | null>(null);
   const toggle = (s: Section) => setOpen((o) => (o === s ? null : s));
 
@@ -29,7 +29,7 @@ export function MoreDetails({ field, data, plan }: { field: Field; data: FieldCo
         <Item id="crop" title="Crop health from space" open={open} onToggle={toggle}>
           {data ? <CropDetails data={data} /> : <Loading />}
           <div className="mt-5 border-t border-line pt-4">
-            <NdviHistoryChart polygon={field.polygon} />
+            <NdviHistoryChart history={ndvi} />
           </div>
         </Item>
         <Item id="plan" title="Plan your next crop" open={open} onToggle={toggle}>

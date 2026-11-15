@@ -7,4 +7,3 @@ export * from "./lib/field-calendar";
 export * from "./lib/compare-strategies";
 export * from "./lib/describe-strategy";
 export * from "./lib/strategy-comparison-source";
-export { useFieldTerrain } from "./api/use-field-terrain";
