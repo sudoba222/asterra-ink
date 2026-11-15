@@ -6,3 +6,4 @@ export { FieldYearStrip } from "./ui/FieldYearStrip";
 export { CropYearBar } from "./ui/CropYearBar";
 export { ConfidenceIndicator } from "./ui/ConfidenceIndicator";
 export { StrategyInformation } from "./ui/StrategyInformation";
+export { StrategyDisclaimer } from "./ui/StrategyDisclaimer";

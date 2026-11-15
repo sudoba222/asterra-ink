@@ -14,3 +14,7 @@ export interface StrategyComparison {
 export function getStrategyComparison(profile: FarmerProfile, ctx: ClimateContext, field?: FieldEvidence): StrategyComparison {
   return { strategies: compareStrategies(profile, ctx, field), calendar: field?.calendar ?? null };
 }
+
+/** "Supports, not replaces": shown under the strategies on screen and in the PDF report. */
+export const STRATEGY_DISCLAIMER =
+  "ASTERRA suggests options from satellite and climate data. It does not replace your own experience or a local agronomist. Check the points marked “Check locally” before you change your rotation.";

@@ -24,7 +24,7 @@ import { StateMessage } from "@/shared/ui";
 import { CropRotation, climateContext } from "@/widgets/crop-rotation";
 import { DashboardSkeleton, FieldDashboard } from "@/widgets/field-dashboard";
 import { FieldReport, ReportCard, useFieldPhoto } from "@/widgets/field-report";
-import { RotationStrategiesSection } from "@/widgets/rotation-strategies";
+import { RotationStrategiesSection, StrategyDisclaimer } from "@/widgets/rotation-strategies";
 import { useStrategyEvidence, type StrategyEvidence } from "../model/use-strategy-evidence";
 
 /** /field/[id]: saved field → map focus + simple dashboard. */
@@ -174,8 +174,9 @@ function PlanNextCrop({
       )}
       <CropRotation farmer={farmer} onFarmerChange={onFarmerChange} result={rotation} />
       {strategies && (
-        <div className="mt-6 border-t border-line pt-6">
+        <div className="mt-6 space-y-4 border-t border-line pt-6">
           <RotationStrategiesSection comparison={strategies} pending={evidence.pending} unavailable={evidence.unavailable} />
+          <StrategyDisclaimer />
         </div>
       )}
     </div>
