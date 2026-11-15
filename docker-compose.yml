@@ -4,16 +4,6 @@ services:
     restart: unless-stopped
     logging: { options: { max-size: "10m", max-file: "3" } }
 
-  api:
-    build: ./backend
-    env_file: ./backend/.env
-    environment:
-      ASTERRA_CACHE_DIR: /data/cache
-    restart: unless-stopped
-    volumes:
-      - nasa_cache:/data/cache
-    logging: { options: { max-size: "10m", max-file: "3" } }
-
   caddy:
     image: caddy:2
     restart: unless-stopped
@@ -24,10 +14,9 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [web, api]
+    depends_on: [web]
     logging: { options: { max-size: "10m", max-file: "3" } }
 
 volumes:
-  nasa_cache:
   caddy_data:
   caddy_config:
