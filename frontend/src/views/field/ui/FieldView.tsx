@@ -76,7 +76,7 @@ function FieldLoaded({ field }: { field: Field }) {
     <>
       <FieldOutline field={field} />
       <div className="pointer-events-auto absolute top-3 right-3 z-20 split:top-7 split:right-7">
-        <LayerSwitcher />
+        <LayerSwitcher focus={ringBBox(field.polygon)} />
       </div>
       <FieldDashboard
         field={field}
