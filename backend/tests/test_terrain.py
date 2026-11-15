@@ -1,11 +1,21 @@
 import array
 import io
 import math
+import random
 import zipfile
 
 import httpx
 
-from app.terrain import SAMPLES, VOID, Window, compute_terrain, erosion_risk, tile_name
+from app.terrain import (
+    MARGIN,
+    SAMPLES,
+    VOID,
+    Window,
+    compute_terrain,
+    erosion_risk,
+    plane_slope_pct,
+    tile_name,
+)
 
 STEP = 1 / (SAMPLES - 1)
 DY = 111_320.0 * STEP  # metres per pixel north-south
@@ -31,10 +41,14 @@ def plane(
     )
 
 
-def window_over_field(slope_pct: float) -> Window:
-    row0 = round((38 - 37.841) / STEP)
-    col0 = round((68.773 - 68) / STEP)
-    return plane(slope_pct, rows=12, cols=12, row0=row0, col0=col0)
+def window_over_field(slope_pct: float, noise_m: float = 0.0, seed: int = 1) -> Window:
+    """The field's pixels plus the margin `read_window` adds, optionally with SRTM-like height noise."""
+    row0 = round((38 - 37.840) / STEP) - MARGIN
+    col0 = round((68.774 - 68) / STEP) - MARGIN
+    w = plane(slope_pct, rows=8 + 2 * MARGIN, cols=8 + 2 * MARGIN, row0=row0, col0=col0)
+    rnd = random.Random(seed)
+    w.rows = [[round(v + rnd.gauss(0, noise_m)) for v in row] for row in w.rows]
+    return w
 
 
 def test_tile_name():
@@ -117,3 +131,18 @@ def test_terrain_errors(make_client):
     assert res.status_code == 404 and res.json()["error"]["code"] == "NO_ELEVATION_DATA"
     bad = client.post("/api/v1/fields/terrain", json={"polygon": FIELD[:2]})
     assert bad.status_code == 422
+
+
+def test_height_noise_does_not_look_like_slope():
+    """SRTM heights have ~3 m noise; a flat polder must still read as flat (it read 3.4 % per pixel)."""
+    for seed in range(5):
+        flat = compute_terrain(window_over_field(0, noise_m=3, seed=seed), FIELD)
+        assert flat and flat.slope_mean_pct < 1 and flat.erosion_risk == "low", flat
+        gentle = compute_terrain(window_over_field(3, noise_m=3, seed=seed), FIELD)
+        assert gentle and 2.2 <= gentle.slope_mean_pct <= 3.8, gentle
+
+
+def test_plane_slope():
+    pts = [(x, y, 0.04 * x + 0.03 * y + 100) for x in range(0, 300, 30) for y in range(0, 300, 30)]
+    assert abs(plane_slope_pct(pts) - 5.0) < 1e-6
+    assert plane_slope_pct([(0, 0, 1), (1, 1, 1)]) is None

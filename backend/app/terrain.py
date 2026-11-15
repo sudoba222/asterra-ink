@@ -4,9 +4,13 @@ NASADEM tiles are 1° × 1° zip files on NASA LP DAAC (Earthdata Login token ne
 3601 × 3601 grid of big-endian int16 heights in metres, north row first. A tile is downloaded
 once and kept in the cache volume; only the rows under the field are read.
 
-Slope uses Horn's method on the 3 × 3 neighbourhood of every pixel whose centre is inside the
-field. Erosion-risk classes are an indicative rule of thumb (water erosion rises sharply above
-2–5 % slope), not a soil-loss model.
+SRTM-based heights carry a few metres of noise per pixel, which on flat land looks like 3–6 %
+slope if slope is taken pixel by pixel. So:
+  * field slope = tilt of one least-squares plane through every height inside the field
+    (noise averages out; a flat polder reads ≈ 0 %);
+  * steep parts = Horn's method on 3 × 3-pixel block means (≈ 90 m), which cuts the noise ~3×.
+Heights are a surface model, so buildings and tall trees add bumps. Erosion-risk classes are an
+indicative rule of thumb (water erosion rises sharply above 2–5 % slope), not a soil-loss model.
 """
 
 import asyncio
@@ -28,6 +32,9 @@ SAMPLES = 3601
 VOID = -32768
 METRES_PER_DEGREE = 111_320.0
 SOURCE = "NASA NASADEM (SRTM, 30 m)"
+BLOCK = 3  # pixels per side of the ≈ 90 m blocks used for local slope
+MIN_FIT = 11  # the plane is fitted over at least 11 × 11 pixels (≈ 330 m), so height noise can't fake a tilt
+MARGIN = max(2 * BLOCK + 1, MIN_FIT // 2 + 1)  # pixels read around the field (block neighbours, small fields)
 
 
 def tile_name(lat: float, lon: float) -> str:
@@ -49,13 +56,13 @@ class Window:
 def read_window(
     path: Path, lat0: int, lon0: int, west: float, south: float, east: float, north: float
 ) -> Window:
-    """Reads the field's box plus a 1-pixel margin, clipped to the tile."""
+    """Reads the field's box plus a margin for the block neighbours, clipped to the tile."""
     to_row = lambda lat: (lat0 + 1 - lat) * (SAMPLES - 1)  # noqa: E731
     to_col = lambda lon: (lon - lon0) * (SAMPLES - 1)  # noqa: E731
-    r0 = max(0, math.floor(to_row(north)) - 1)
-    r1 = min(SAMPLES - 1, math.ceil(to_row(south)) + 1)
-    c0 = max(0, math.floor(to_col(west)) - 1)
-    c1 = min(SAMPLES - 1, math.ceil(to_col(east)) + 1)
+    r0 = max(0, math.floor(to_row(north)) - MARGIN)
+    r1 = min(SAMPLES - 1, math.ceil(to_row(south)) + MARGIN)
+    c0 = max(0, math.floor(to_col(west)) - MARGIN)
+    c1 = min(SAMPLES - 1, math.ceil(to_col(east)) + MARGIN)
     width = c1 - c0 + 1
     rows: list[list[int]] = []
     with path.open("rb") as f:
@@ -83,55 +90,102 @@ def erosion_risk(slope_mean_pct: float, steep_share: float) -> str:
     return "low"
 
 
+def plane_slope_pct(points: list[tuple[float, float, float]]) -> float | None:
+    """Slope (%) of the least-squares plane z = a·x + b·y + c through (x m, y m, z m) points."""
+    n = len(points)
+    if n < 3:
+        return None
+    mx = sum(p[0] for p in points) / n
+    my = sum(p[1] for p in points) / n
+    mz = sum(p[2] for p in points) / n
+    sxx = sum((p[0] - mx) ** 2 for p in points)
+    syy = sum((p[1] - my) ** 2 for p in points)
+    sxy = sum((p[0] - mx) * (p[1] - my) for p in points)
+    sxz = sum((p[0] - mx) * (p[2] - mz) for p in points)
+    syz = sum((p[1] - my) * (p[2] - mz) for p in points)
+    det = sxx * syy - sxy**2
+    if det <= 0:
+        return None
+    a = (sxz * syy - syz * sxy) / det
+    b = (syz * sxx - sxz * sxy) / det
+    return 100 * math.hypot(a, b)
+
+
 def compute_terrain(w: Window, polygon: list[Point]) -> Terrain | None:
-    """Slope (%) and height for pixels whose centre is inside the field; the nearest pixel for tiny fields."""
+    """Field slope (plane fit), steep parts (≈ 90 m blocks) and height for the field."""
     step = 1 / (SAMPLES - 1)
-    dy = METRES_PER_DEGREE * step
+    rows, cols = len(w.rows), len(w.rows[0])
+    lat_of = lambda r: w.lat0 + 1 - (w.row0 + r) * step  # noqa: E731
+    lon_of = lambda c: w.lon0 + (w.col0 + c) * step  # noqa: E731
+    lat_ref = lat_of(rows / 2)
+    mx_per_deg = METRES_PER_DEGREE * math.cos(math.radians(lat_ref))
 
-    def pixel(r: int, c: int) -> tuple[float, float] | None:
-        """(slope %, height) at window row r, col c, or None at the edge or near voids."""
-        if r < 1 or c < 1 or r >= len(w.rows) - 1 or c >= len(w.rows[0]) - 1:
-            return None
-        z = [[w.rows[r + i][c + j] for j in (-1, 0, 1)] for i in (-1, 0, 1)]
-        if any(v == VOID for row in z for v in row):
-            return None
-        lat = w.lat0 + 1 - (w.row0 + r) * step
-        dx = METRES_PER_DEGREE * step * math.cos(math.radians(lat))
-        dzdx = ((z[0][2] + 2 * z[1][2] + z[2][2]) - (z[0][0] + 2 * z[1][0] + z[2][0])) / (8 * dx)
-        dzdy = ((z[2][0] + 2 * z[2][1] + z[2][2]) - (z[0][0] + 2 * z[0][1] + z[0][2])) / (8 * dy)
-        return 100 * math.hypot(dzdx, dzdy), float(z[1][1])
+    def xyz(r: int, c: int) -> tuple[float, float, float]:
+        return (
+            (lon_of(c) - lon_of(0)) * mx_per_deg,
+            (lat_of(r) - lat_of(0)) * METRES_PER_DEGREE,
+            float(w.rows[r][c]),
+        )
 
-    slopes: list[float] = []
-    heights: list[float] = []
-    for r in range(len(w.rows)):
-        lat = w.lat0 + 1 - (w.row0 + r) * step
-        for c in range(len(w.rows[0])):
-            lon = w.lon0 + (w.col0 + c) * step
-            if not point_in_ring(lon, lat, polygon):
-                continue
-            p = pixel(r, c)
-            if p:
-                slopes.append(p[0])
-                heights.append(p[1])
-
-    if not slopes:  # field smaller than a pixel: use the pixel nearest to its centre
+    inside = [
+        (r, c)
+        for r in range(rows)
+        for c in range(cols)
+        if w.rows[r][c] != VOID and point_in_ring(lon_of(c), lat_of(r), polygon)
+    ]
+    if not inside:  # field smaller than a pixel: the pixel nearest to its centre
         clon = sum(p[0] for p in polygon) / len(polygon)
         clat = sum(p[1] for p in polygon) / len(polygon)
-        p = pixel(round((w.lat0 + 1 - clat) / step) - w.row0, round((clon - w.lon0) / step) - w.col0)
-        if not p:
+        rc, cc = round((w.lat0 + 1 - clat) / step) - w.row0, round((clon - w.lon0) / step) - w.col0
+        if not (0 <= rc < rows and 0 <= cc < cols) or w.rows[rc][cc] == VOID:
             return None
-        slopes, heights = [p[0]], [p[1]]
+        inside = [(rc, cc)]
+    fit = inside
+    if len(inside) < MIN_FIT * MIN_FIT:  # small field: fit the plane over ≈ 330 m around it
+        rc = round(sum(r for r, _ in inside) / len(inside))
+        cc = round(sum(c for _, c in inside) / len(inside))
+        h = MIN_FIT // 2
+        around = {(r, c) for r in range(rc - h, rc + h + 1) for c in range(cc - h, cc + h + 1)} | set(inside)
+        fit = [(r, c) for r, c in around if 0 <= r < rows and 0 <= c < cols and w.rows[r][c] != VOID]
+    field_slope = plane_slope_pct([xyz(r, c) for r, c in fit])
+    if field_slope is None:
+        return None
+    heights = [w.rows[r][c] for r, c in inside]
 
-    slopes.sort()
-    mean = sum(slopes) / len(slopes)
-    steep = sum(1 for s in slopes if s > 5) / len(slopes)
+    # Local slope on ≈ 90 m block means (Horn's method on the block grid).
+    nbr, nbc = rows // BLOCK, cols // BLOCK
+    blocks: list[list[float | None]] = []
+    for bi in range(nbr):
+        line: list[float | None] = []
+        for bj in range(nbc):
+            vals = [w.rows[bi * BLOCK + i][bj * BLOCK + j] for i in range(BLOCK) for j in range(BLOCK)]
+            line.append(None if VOID in vals else sum(vals) / len(vals))
+        blocks.append(line)
+    dy = METRES_PER_DEGREE * step * BLOCK
+    dx = mx_per_deg * step * BLOCK
+    local: list[float] = []
+    for bi in range(1, nbr - 1):
+        for bj in range(1, nbc - 1):
+            centre_r, centre_c = bi * BLOCK + BLOCK // 2, bj * BLOCK + BLOCK // 2
+            if not point_in_ring(lon_of(centre_c), lat_of(centre_r), polygon):
+                continue
+            z = [[blocks[bi + i][bj + j] for j in (-1, 0, 1)] for i in (-1, 0, 1)]
+            if any(v is None for row in z for v in row):
+                continue
+            dzdx = ((z[0][2] + 2 * z[1][2] + z[2][2]) - (z[0][0] + 2 * z[1][0] + z[2][0])) / (8 * dx)  # type: ignore[operator]
+            dzdy = ((z[2][0] + 2 * z[2][1] + z[2][2]) - (z[0][0] + 2 * z[0][1] + z[0][2])) / (8 * dy)  # type: ignore[operator]
+            local.append(100 * math.hypot(dzdx, dzdy))
+    if not local:  # field smaller than one block: its own plane is all we can say
+        local = [field_slope]
+    local.sort()
+    steep = sum(1 for s in local if s > 5) / len(local)
     return Terrain(
         elevation_m=round(sum(heights) / len(heights)),
-        slope_mean_pct=round(mean, 1),
-        slope_p90_pct=round(slopes[min(len(slopes) - 1, int(0.9 * len(slopes)))], 1),
+        slope_mean_pct=round(field_slope, 1),
+        slope_p90_pct=round(max(field_slope, local[min(len(local) - 1, int(0.9 * len(local)))]), 1),
         steep_share=round(steep, 2),
-        erosion_risk=erosion_risk(mean, steep),
-        pixels=len(slopes),
+        erosion_risk=erosion_risk(field_slope, steep),
+        pixels=len(inside),
     )
 
 
@@ -146,7 +200,7 @@ def terrain_evidence(t: Terrain) -> list[dict[str, str]]:
     }[t.erosion_risk]
     return [
         {
-            "text": f"Average slope {t.slope_mean_pct} % (steepest tenth of the field {t.slope_p90_pct} %), "
+            "text": f"Field slope {t.slope_mean_pct} % (steepest tenth of the field {t.slope_p90_pct} %), "
             f"height about {t.elevation_m:.0f} m. {advice}",
             "source": SOURCE,
         }
