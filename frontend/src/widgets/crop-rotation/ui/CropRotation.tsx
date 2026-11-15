@@ -169,21 +169,21 @@ function CandidateRow({ c, rank }: { c: CandidateResult; rank?: number }) {
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-controls={bodyId}
-          className="flex w-full items-start gap-3 rounded-2xl p-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-forest/60 focus-visible:ring-inset sm:p-5"
+          className="flex w-full items-start gap-2.5 rounded-2xl p-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-forest/60 focus-visible:ring-inset @min-[24rem]:gap-3 @min-[24rem]:p-5"
         >
           {rank !== undefined && (
-            <span className="w-5 shrink-0 font-mono text-[12px] leading-6 text-ink-faint tabular-nums">{String(rank).padStart(2, "0")}</span>
+            <span className="w-4 shrink-0 font-mono text-[12px] leading-6 text-ink-faint tabular-nums @min-[24rem]:w-5">{String(rank).padStart(2, "0")}</span>
           )}
           <CropThumb id={c.crop.id} name={c.crop.name} muted={muted} />
           {/* Narrow card: title / chips / badge. Wide card (≥28rem): title + badge on one line, then chips;
               the badge still drops under the title if the two don't fit side by side. */}
           <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2">
-            <span className="min-w-0 basis-full text-[16px] leading-6 font-semibold break-words text-ink sm:text-[17px] @min-[28rem]:grow @min-[28rem]:basis-auto">
+            <span className="min-w-0 basis-full text-[16px] leading-6 font-semibold break-words text-ink @min-[24rem]:text-[17px] @min-[28rem]:grow @min-[28rem]:basis-auto">
               {c.crop.name}
             </span>
             <span
               className={cn(
-                "order-last inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] leading-4 font-medium whitespace-nowrap ring-1 ring-inset @min-[28rem]:order-none",
+                "order-last inline-flex max-w-full items-center gap-1 rounded-full px-2 py-1 text-[11.5px] leading-4 font-medium whitespace-nowrap ring-1 ring-inset @min-[24rem]:px-2.5 @min-[28rem]:order-none",
                 st.cls,
               )}
             >
@@ -218,7 +218,7 @@ function CandidateRow({ c, rank }: { c: CandidateResult; rank?: number }) {
           )}
         >
           <div className="min-h-0 overflow-hidden">
-            <div className="mx-4 border-t border-black/5 pt-4 pb-4 sm:mx-5 sm:pb-5">
+            <div className="mx-4 border-t border-black/5 pt-4 pb-4 @min-[24rem]:mx-5 @min-[24rem]:pb-5">
               <ul className="space-y-3">
                 {c.checks.map((ch, i) => (
                   <li key={i} className="flex gap-2.5 text-[13px] leading-[1.55]">
