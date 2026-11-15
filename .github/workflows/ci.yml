@@ -11,6 +11,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Install
+        run: uv sync --locked
+      - name: Lint (ruff)
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Tests (pytest, Copernicus calls mocked)
+        run: uv run pytest -q
+
   frontend:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -43,4 +59,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Compose file is valid
-        run: docker compose config --quiet
+        run: touch backend/.env && docker compose config --quiet
