@@ -19,5 +19,7 @@ export function climateContext(p: EnvironmentalProfile): ClimateContext {
     monthlyRain: byMonth(p.series.precipitation?.values),
     monthlyEt0: byMonth(p.series.evapotranspiration?.values),
     monthlySoilMoisture: byMonth(p.series.soilMoisture?.values),
+    // Heat months for the field calendar (same request).
+    monthlyTmax: byMonth(p.series.temperatureMax?.values),
   };
 }

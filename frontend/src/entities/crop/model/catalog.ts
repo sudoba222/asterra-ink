@@ -34,6 +34,12 @@ export interface Crop {
   frostTolerant: boolean;
   drainageSensitive: boolean;
   salinity: "sensitive" | "moderate" | "tolerant";
+  /** Typical rooting depth. Deep roots break compaction and improve infiltration. INDICATIVE (FAO crop water information). */
+  rootDepth: "shallow" | "medium" | "deep";
+  /** Crop residue left after harvest: organic matter and erosion cover. INDICATIVE. */
+  residue: "low" | "medium" | "high";
+  /** Commonly used as animal feed (forage, hay or silage). */
+  forage: boolean;
   verified: false;
 }
 
@@ -50,16 +56,16 @@ function crop(c: Omit<Crop, "familyLabel" | "verified">): Crop {
 }
 
 export const CROPS: Crop[] = [
-  crop({ id: "maize", name: "Maize (corn)", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 10, optMin: 18, optMax: 33, absMax: 47 }, rainfall: { absMin: 400, optMin: 600, optMax: 1200, absMax: 1800 }, waterNeed: "high", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "sensitive" }),
-  crop({ id: "wheat", name: "Wheat", family: "Poaceae", seasonMonths: 5, temperature: { absMin: 5, optMin: 15, optMax: 23, absMax: 27 }, rainfall: { absMin: 300, optMin: 750, optMax: 900, absMax: 1600 }, waterNeed: "medium", nitrogen: "demanding", frostTolerant: true, drainageSensitive: false, salinity: "moderate" }),
-  crop({ id: "barley", name: "Barley", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 2, optMin: 15, optMax: 20, absMax: 40 }, rainfall: { absMin: 200, optMin: 500, optMax: 1000, absMax: 2000 }, waterNeed: "low", nitrogen: "demanding", frostTolerant: true, drainageSensitive: false, salinity: "tolerant" }),
-  crop({ id: "sorghum", name: "Sorghum", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 8, optMin: 27, optMax: 35, absMax: 40 }, rainfall: { absMin: 300, optMin: 500, optMax: 1000, absMax: 3000 }, waterNeed: "low", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "moderate" }),
-  crop({ id: "soybean", name: "Soybean", family: "Fabaceae", seasonMonths: 4, temperature: { absMin: 10, optMin: 20, optMax: 33, absMax: 38 }, rainfall: { absMin: 450, optMin: 600, optMax: 1500, absMax: 1800 }, waterNeed: "medium", nitrogen: "fixes", frostTolerant: false, drainageSensitive: false, salinity: "moderate" }),
-  crop({ id: "chickpea", name: "Chickpea", family: "Fabaceae", seasonMonths: 4, temperature: { absMin: 7, optMin: 15, optMax: 29, absMax: 35 }, rainfall: { absMin: 300, optMin: 600, optMax: 1000, absMax: 1800 }, waterNeed: "low", nitrogen: "fixes", frostTolerant: false, drainageSensitive: true, salinity: "sensitive" }),
-  crop({ id: "alfalfa", name: "Alfalfa (lucerne)", family: "Fabaceae", seasonMonths: 6, temperature: { absMin: 5, optMin: 15, optMax: 25, absMax: 35 }, rainfall: { absMin: 350, optMin: 600, optMax: 1200, absMax: 2700 }, waterNeed: "high", nitrogen: "fixes", frostTolerant: true, drainageSensitive: true, salinity: "sensitive" }),
-  crop({ id: "sunflower", name: "Sunflower", family: "Asteraceae", seasonMonths: 4, temperature: { absMin: 6, optMin: 17, optMax: 33, absMax: 38 }, rainfall: { absMin: 400, optMin: 600, optMax: 1000, absMax: 1500 }, waterNeed: "low", nitrogen: "neutral", frostTolerant: false, drainageSensitive: true, salinity: "moderate" }),
-  crop({ id: "cotton", name: "Cotton", family: "Malvaceae", seasonMonths: 6, temperature: { absMin: 15, optMin: 20, optMax: 30, absMax: 38 }, rainfall: { absMin: 500, optMin: 700, optMax: 1500, absMax: 4000 }, waterNeed: "high", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "tolerant" }),
-  crop({ id: "potato", name: "Potato", family: "Solanaceae", seasonMonths: 4, temperature: { absMin: 7, optMin: 15, optMax: 25, absMax: 30 }, rainfall: { absMin: 250, optMin: 500, optMax: 800, absMax: 2000 }, waterNeed: "medium", nitrogen: "demanding", frostTolerant: false, drainageSensitive: true, salinity: "sensitive" }),
+  crop({ id: "maize", name: "Maize (corn)", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 10, optMin: 18, optMax: 33, absMax: 47 }, rainfall: { absMin: 400, optMin: 600, optMax: 1200, absMax: 1800 }, waterNeed: "high", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "sensitive", rootDepth: "medium", residue: "high", forage: true }),
+  crop({ id: "wheat", name: "Wheat", family: "Poaceae", seasonMonths: 5, temperature: { absMin: 5, optMin: 15, optMax: 23, absMax: 27 }, rainfall: { absMin: 300, optMin: 750, optMax: 900, absMax: 1600 }, waterNeed: "medium", nitrogen: "demanding", frostTolerant: true, drainageSensitive: false, salinity: "moderate", rootDepth: "medium", residue: "high", forage: false }),
+  crop({ id: "barley", name: "Barley", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 2, optMin: 15, optMax: 20, absMax: 40 }, rainfall: { absMin: 200, optMin: 500, optMax: 1000, absMax: 2000 }, waterNeed: "low", nitrogen: "demanding", frostTolerant: true, drainageSensitive: false, salinity: "tolerant", rootDepth: "medium", residue: "medium", forage: true }),
+  crop({ id: "sorghum", name: "Sorghum", family: "Poaceae", seasonMonths: 4, temperature: { absMin: 8, optMin: 27, optMax: 35, absMax: 40 }, rainfall: { absMin: 300, optMin: 500, optMax: 1000, absMax: 3000 }, waterNeed: "low", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "moderate", rootDepth: "deep", residue: "high", forage: true }),
+  crop({ id: "soybean", name: "Soybean", family: "Fabaceae", seasonMonths: 4, temperature: { absMin: 10, optMin: 20, optMax: 33, absMax: 38 }, rainfall: { absMin: 450, optMin: 600, optMax: 1500, absMax: 1800 }, waterNeed: "medium", nitrogen: "fixes", frostTolerant: false, drainageSensitive: false, salinity: "moderate", rootDepth: "medium", residue: "low", forage: false }),
+  crop({ id: "chickpea", name: "Chickpea", family: "Fabaceae", seasonMonths: 4, temperature: { absMin: 7, optMin: 15, optMax: 29, absMax: 35 }, rainfall: { absMin: 300, optMin: 600, optMax: 1000, absMax: 1800 }, waterNeed: "low", nitrogen: "fixes", frostTolerant: false, drainageSensitive: true, salinity: "sensitive", rootDepth: "medium", residue: "low", forage: false }),
+  crop({ id: "alfalfa", name: "Alfalfa (lucerne)", family: "Fabaceae", seasonMonths: 6, temperature: { absMin: 5, optMin: 15, optMax: 25, absMax: 35 }, rainfall: { absMin: 350, optMin: 600, optMax: 1200, absMax: 2700 }, waterNeed: "high", nitrogen: "fixes", frostTolerant: true, drainageSensitive: true, salinity: "sensitive", rootDepth: "deep", residue: "medium", forage: true }),
+  crop({ id: "sunflower", name: "Sunflower", family: "Asteraceae", seasonMonths: 4, temperature: { absMin: 6, optMin: 17, optMax: 33, absMax: 38 }, rainfall: { absMin: 400, optMin: 600, optMax: 1000, absMax: 1500 }, waterNeed: "low", nitrogen: "neutral", frostTolerant: false, drainageSensitive: true, salinity: "moderate", rootDepth: "deep", residue: "medium", forage: false }),
+  crop({ id: "cotton", name: "Cotton", family: "Malvaceae", seasonMonths: 6, temperature: { absMin: 15, optMin: 20, optMax: 30, absMax: 38 }, rainfall: { absMin: 500, optMin: 700, optMax: 1500, absMax: 4000 }, waterNeed: "high", nitrogen: "demanding", frostTolerant: false, drainageSensitive: false, salinity: "tolerant", rootDepth: "deep", residue: "medium", forage: false }),
+  crop({ id: "potato", name: "Potato", family: "Solanaceae", seasonMonths: 4, temperature: { absMin: 7, optMin: 15, optMax: 25, absMax: 30 }, rainfall: { absMin: 250, optMin: 500, optMax: 800, absMax: 2000 }, waterNeed: "medium", nitrogen: "demanding", frostTolerant: false, drainageSensitive: true, salinity: "sensitive", rootDepth: "shallow", residue: "low", forage: false }),
 ];
 
 /**

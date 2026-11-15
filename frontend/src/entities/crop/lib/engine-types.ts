@@ -14,6 +14,8 @@ export interface ClimateContext {
   monthlyEt0?: Array<number | null>;
   /** Root-zone soil wetness per calendar month, % of saturation (POWER GWETROOT × 100). */
   monthlySoilMoisture?: Array<number | null>;
+  /** Hottest hour of each calendar month, °C (POWER monthly T2M_MAX is the month's peak). Optional. */
+  monthlyTmax?: Array<number | null>;
 }
 
 export type CheckKind = "pass" | "warn" | "fail" | "note";

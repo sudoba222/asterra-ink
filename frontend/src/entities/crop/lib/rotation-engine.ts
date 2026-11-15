@@ -68,7 +68,7 @@ function resolveHistory(profile: FarmerProfile): SeasonHistory {
   return { last: pick(profile.previousCrops[0]), before: pick(profile.previousCrops[1]) };
 }
 
-function seasonMonths(start: number, length: number): number[] {
+export function seasonMonths(start: number, length: number): number[] {
   return Array.from({ length }, (_, i) => (start + i) % 12);
 }
 
@@ -77,7 +77,7 @@ function seasonMean(values: Array<number | null>, months: number[]): number | nu
   return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
 }
 
-function bestStart(crop: Crop, ctx: ClimateContext): number {
+export function bestStart(crop: Crop, ctx: ClimateContext): number {
   const mid = (crop.temperature.optMin + crop.temperature.optMax) / 2;
   let best = 0;
   let bestD = Infinity;
