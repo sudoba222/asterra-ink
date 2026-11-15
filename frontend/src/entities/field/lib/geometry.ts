@@ -33,3 +33,20 @@ export function toGeoJsonFeature(ring: LonLat[], properties: Record<string, unkn
     geometry: { type: "Polygon" as const, coordinates: [[...ring, ring[0]]] },
   };
 }
+
+/**
+ * SVG path for a ring, fitted inside a `size`×`size` viewBox with `pad` margin.
+ * Equirectangular with cos(lat) scaling, so a field keeps its true shape. North is up.
+ */
+export function ringToSvgPath(ring: LonLat[], size = 100, pad = 6): string {
+  if (ring.length < 2) return "";
+  const { west, east, south, north } = ringBBox(ring);
+  const kx = Math.cos((((south + north) / 2) * Math.PI) / 180);
+  const w = (east - west) * kx;
+  const h = north - south;
+  const scale = (size - 2 * pad) / Math.max(w, h, 1e-12);
+  const ox = (size - w * scale) / 2;
+  const oy = (size - h * scale) / 2;
+  const pts = ring.map(([lon, lat]) => `${(ox + (lon - west) * kx * scale).toFixed(2)},${(oy + (north - lat) * scale).toFixed(2)}`);
+  return `M${pts.join("L")}Z`;
+}

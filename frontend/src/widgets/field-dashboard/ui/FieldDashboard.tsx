@@ -5,15 +5,24 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatHectares, placeLabel, type Field } from "@/entities/field";
-import { shortDate, useFieldConditions } from "@/entities/field-conditions";
+import { shortDate, type FieldConditionsState } from "@/entities/field-conditions";
 import { Skeleton, StateMessage } from "@/shared/ui";
 import { MoreDetails } from "./MoreDetails";
 import { RecommendationCard } from "./RecommendationCard";
 import { StatusCard } from "./StatusCard";
 
+interface Props {
+  field: Field;
+  /** From `useFieldConditions(field.polygon)`, owned by the page so the PDF report shares it. */
+  conditions: FieldConditionsState;
+  plan: ReactNode;
+  /** Rendered after "More details" (the PDF report card). */
+  footer?: ReactNode;
+}
+
 /** The simple farmer view: one recommendation, four cards, everything else in "More details". */
-export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode }) {
-  const { status, data, error, retry } = useFieldConditions(field.polygon);
+export function FieldDashboard({ field, conditions, plan, footer }: Props) {
+  const { status, data, error, retry } = conditions;
   const place = placeLabel(field);
 
   return (
@@ -24,7 +33,7 @@ export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode 
       className="pointer-events-auto absolute inset-x-0 top-[40dvh] bottom-0 overflow-hidden rounded-t-[28px] bg-canvas shadow-[0_-12px_40px_-16px_rgba(0,0,0,0.5)] split:top-0 split:right-[var(--globe-split)] split:rounded-none split:shadow-none"
     >
       <div className="scroll-quiet @container h-full overflow-y-auto">
-        <div className="mx-auto max-w-[880px] px-4 pt-5 pb-16 @md:px-6 split:pt-7">
+        <div className="mx-auto max-w-[760px] px-4 pt-5 pb-16 @md:px-6 split:max-w-[1180px] split:px-8 split:pt-7">
           <Link href="/" className="inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-[13px] font-medium text-ink-muted hover:bg-mist hover:text-ink">
             <ArrowLeft className="size-4" aria-hidden /> My fields
           </Link>
@@ -71,6 +80,7 @@ export function FieldDashboard({ field, plan }: { field: Field; plan: ReactNode 
           </div>
 
           <MoreDetails field={field} data={data} plan={plan} />
+          {footer}
         </div>
       </div>
     </motion.div>

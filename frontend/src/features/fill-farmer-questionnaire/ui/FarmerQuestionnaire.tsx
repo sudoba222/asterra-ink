@@ -1,51 +1,21 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { HISTORY_OPTIONS, type FarmerProfile, type FieldIssue } from "@/entities/crop";
+import {
+  BUDGET_OPTIONS as BUDGETS,
+  GOAL_OPTIONS as GOALS,
+  HISTORY_OPTIONS,
+  IRRIGATION_OPTIONS as IRRIGATION,
+  ISSUE_OPTIONS as ISSUES,
+  SOIL_OPTIONS as SOILS,
+  type FarmerProfile,
+} from "@/entities/crop";
 import { cn, monthName } from "@/shared/lib";
 
 interface Props {
   value: FarmerProfile;
   onChange: (next: FarmerProfile) => void;
 }
-
-const GOALS: Array<{ value: FarmerProfile["goal"]; label: string }> = [
-  { value: "yield", label: "Higher yield" },
-  { value: "profit", label: "Profit" },
-  { value: "water", label: "Save water" },
-  { value: "soil", label: "Soil health" },
-  { value: "risk", label: "Lower risk" },
-];
-
-const IRRIGATION: Array<{ value: FarmerProfile["irrigation"]; label: string }> = [
-  { value: "rainfed", label: "Rain only" },
-  { value: "irrigated", label: "Irrigated" },
-  { value: "both", label: "Both" },
-  { value: "unknown", label: "Not sure" },
-];
-
-const ISSUES: Array<{ value: FieldIssue; label: string }> = [
-  { value: "pests", label: "Pests" },
-  { value: "disease", label: "Disease" },
-  { value: "poor-yield", label: "Poor yields" },
-  { value: "salinity", label: "Salty soil" },
-  { value: "waterlogging", label: "Waterlogging" },
-  { value: "erosion", label: "Erosion" },
-];
-
-const SOILS: Array<{ value: FarmerProfile["soilType"]; label: string }> = [
-  { value: "unknown", label: "Don’t know" },
-  { value: "sandy", label: "Sandy" },
-  { value: "loam", label: "Loam" },
-  { value: "clay", label: "Clay" },
-];
-
-const BUDGETS: Array<{ value: FarmerProfile["budget"]; label: string }> = [
-  { value: "unknown", label: "Skip" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-];
 
 /** The five-question farmer form from the project plan (+2 optional). Every question allows "unknown". */
 export function FarmerQuestionnaire({ value, onChange }: Props) {
