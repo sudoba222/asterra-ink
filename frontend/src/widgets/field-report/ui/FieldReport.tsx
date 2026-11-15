@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { CATALOG_VERSION, WEIGHTS, describeProfile, type CandidateResult, type CheckKind, type FarmerProfile, type RotationResult } from "@/entities/crop";
+import { CATALOG_VERSION, WEIGHTS, describeProfile, type CandidateResult, type CheckKind, type CropPlanResult, type FarmerProfile } from "@/entities/crop";
 import { formatHectares, placeLabel, ringToSvgPath, type Field } from "@/entities/field";
 import { shortDate, summariseHistory, type CardState, type FieldConditions, type Level } from "@/entities/field-conditions";
+import type { LandSuitability } from "@/entities/land-suitability";
 import { formatCoord, formatNumber } from "@/shared/lib";
 import { Logo } from "@/shared/ui";
 import type { FieldPhoto } from "../model/use-field-photo";
@@ -14,8 +15,11 @@ interface Props {
   conditions: FieldConditions | null;
   conditionsError: string | null;
   farmer: FarmerProfile;
-  rotation: RotationResult | null;
+  /** Crop plan after the land check; `status: "unsuitable_land"` means no crops are recommended. */
+  rotation: CropPlanResult | null;
   rotationError: string | null;
+  /** Land check result (null while unknown or if the check failed). */
+  land: LandSuitability | null;
   photo: FieldPhoto;
 }
 
@@ -69,7 +73,7 @@ export function FieldReport(props: Props) {
   );
 }
 
-function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, photo }: Props) {
+function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, land, photo }: Props) {
   const [printedAt, setPrintedAt] = useState(() => new Date());
   useEffect(() => {
     const onBefore = () => setPrintedAt(new Date());
@@ -95,7 +99,12 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
             {formatHectares(field.areaHa)}
             {place ? ` · ${place}` : ""}
           </p>
-          {conditions?.recommendation && (
+          {rotation?.status === "unsuitable_land" ? (
+            <div className="mt-3 rounded-lg border-l-4 border-[#C2410C] py-1 pl-3">
+              <p className="text-[9px] font-semibold tracking-wide text-[#5F6B60] uppercase">Land check</p>
+              <p className="text-[14px] font-semibold">{rotation.message}</p>
+            </div>
+          ) : conditions?.recommendation && (
             <div
               className="mt-3 rounded-lg border-l-4 py-1 pl-3"
               style={{
@@ -178,7 +187,7 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
 
       <Section n={conditions ? 5 : 4} title="Data sources">
         <ul className="space-y-0.5">
-          {(conditions?.sources ?? []).map((s) => (
+          {[...(conditions?.sources ?? []), ...(land?.sources ?? [])].map((s) => (
             <li key={s.id}>
               <b className="font-semibold">{s.name}</b> {s.ok ? "" : "(unavailable) "}— {s.detail}
             </li>
@@ -373,7 +382,7 @@ function WeatherSummary({ conditions }: { conditions: FieldConditions }) {
   );
 }
 
-function CropPlan({ farmer, rotation, rotationError }: { farmer: FarmerProfile; rotation: RotationResult | null; rotationError: string | null }) {
+function CropPlan({ farmer, rotation, rotationError }: { farmer: FarmerProfile; rotation: CropPlanResult | null; rotationError: string | null }) {
   const answers = describeProfile(farmer);
   const ranked = rotation?.candidates.filter((c) => c.status !== "excluded") ?? [];
   const excluded = rotation?.candidates.filter((c) => c.status === "excluded") ?? [];
@@ -389,13 +398,20 @@ function CropPlan({ farmer, rotation, rotationError }: { farmer: FarmerProfile; 
         </dl>
       </div>
 
-      {!rotation ? (
+      {rotation?.status === "unsuitable_land" ? (
+        <Unavailable>{rotation.message}</Unavailable>
+      ) : !rotation ? (
         <Unavailable>
           Crop plan unavailable: climate data for planning couldn’t be loaded
           {rotationError ? ` (${rotationError})` : ""}.
         </Unavailable>
       ) : (
         <>
+          {rotation.status === "land_uncertain" && (
+            <p className="break-inside-avoid rounded-md border border-[#F0DDBD] bg-[#FBF5EA] px-3 py-2 text-[#6B4A12]">
+              <b className="font-semibold">Land not confirmed as farmland.</b> {rotation.message}
+            </p>
+          )}
           {(rotation.notes.length > 0 || rotation.missingData.length > 0) && (
             <div className="grid break-inside-avoid grid-cols-2 gap-5">
               {rotation.notes.length > 0 && (

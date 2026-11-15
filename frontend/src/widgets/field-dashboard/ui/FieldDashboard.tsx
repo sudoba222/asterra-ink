@@ -16,12 +16,17 @@ interface Props {
   /** From `useFieldConditions(field.polygon)`, owned by the page so the PDF report shares it. */
   conditions: FieldConditionsState;
   plan: ReactNode;
+  /**
+   * Land check notice for land that can't be farmed. When set it replaces the smart
+   * recommendation, because field advice for a building, road or lake would mislead.
+   */
+  landNotice?: ReactNode;
   /** Rendered after "More details" (the PDF report card). */
   footer?: ReactNode;
 }
 
 /** The simple farmer view: one recommendation, four cards, everything else in "More details". */
-export function FieldDashboard({ field, conditions, plan, footer }: Props) {
+export function FieldDashboard({ field, conditions, plan, landNotice, footer }: Props) {
   const { status, data, error, retry } = conditions;
   const place = placeLabel(field);
 
@@ -53,10 +58,11 @@ export function FieldDashboard({ field, conditions, plan, footer }: Props) {
           </header>
 
           <div className="mt-5" aria-busy={status === "loading"}>
+            {landNotice && <div className="mb-4">{landNotice}</div>}
             {data ? (
               <div className={status === "loading" ? "opacity-60 transition-opacity" : "transition-opacity"}>
-                <RecommendationCard rec={data.recommendation} />
-                <div className="mt-4 grid grid-cols-1 gap-3 @2xl:grid-cols-2">
+                {!landNotice && <RecommendationCard rec={data.recommendation} />}
+                <div className={landNotice ? "grid grid-cols-1 gap-3 @2xl:grid-cols-2" : "mt-4 grid grid-cols-1 gap-3 @2xl:grid-cols-2"}>
                   <StatusCard title="Temperature" icon={Thermometer} state={data.temperature} />
                   <StatusCard title="Soil moisture" icon={Droplets} state={data.soil} />
                   <StatusCard title="Crop health" icon={Leaf} state={data.crop} />
