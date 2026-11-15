@@ -130,7 +130,7 @@ async def field_terrain(
             f"The field is {area:,.0f} ha; the limit is {settings.max_field_hectares:,.0f} ha.",
         )
     key = (
-        "terrain:"
+        "terrain2:"  # v2: plane-fit slope; don't reuse v1 answers
         + hashlib.sha256(
             json.dumps([[round(x, 6), round(y, 6)] for x, y in body.polygon]).encode()
         ).hexdigest()
