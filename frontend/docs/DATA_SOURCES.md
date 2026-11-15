@@ -89,3 +89,32 @@ the **whole polygon**, not just its centre.
 `src/entities/field/api/field-repository.ts`: in this browser only (localStorage) for now. To add a backend, implement the
 `FieldRepository` interface with `GET/POST/DELETE /api/fields` (e.g. Postgres/PostGIS). Fields can be exported
 as GeoJSON from the field page.
+
+## Rotation strategies (`compareStrategies`, no AI)
+
+`src/entities/crop/lib/compare-strategies.ts` builds three 3-season plans and runs every season through the same rule engine as the crop ranking (`evaluateRotation`), so all checks and points are the documented ones above.
+
+| Strategy | Rule |
+| --- | --- |
+| As now | The last two crops continued (last A, before B → B, A, B). Unknown history → not shown, asks for it |
+| Water-saving | Best-scoring crop with low water need (low or medium if irrigated) that passes the climate checks; no family back before its rest period (`FAMILY_ROTATION`) |
+| Soil-health | Legume early (not right after a legume), no family back before its rest period, ranked by score + 2 × soil value (legume +1, deep roots +1, high residue +1 / medium +0.5) |
+
+Each plan returns why / evidence (with source) / benefits / what we don't know / check locally, a confidence level with its reason, and metrics (water, legume seasons, family repeats, climate-fit seasons, bare months, risk flags). "Fits your goal": water → Water-saving, soil → Soil-health, risk → fewest risk flags, yield/profit → most climate-fit seasons (ties: fewer risks, then fewer family repeats). Crop facts `rootDepth`, `residue`, `forage` in the catalog are indicative.
+
+## Field calendar (`fieldCalendar`, `fieldEvidence`)
+
+`src/entities/crop/lib/field-calendar.ts`. Months 1–12.
+
+| Flag | Rule |
+| --- | --- |
+| Bare | Median clear Sentinel-2 NDVI of the month below 0.2 (views with ≥ 30 % of the field clear) |
+| Frost | Coldest hour of the month below 0 °C (POWER monthly T2M_MIN) |
+| Hot | Hottest hour of the month at least 40 °C (POWER monthly T2M_MAX is the month's peak, not a typical day) |
+| Dry | Rain below half of reference ET₀ |
+
+"Turned green" = NDVI rose above 0.4 after being below 0.3 (≈ crops in 12 months).
+
+## 20-year climate trend (`GET /api/climate-trend?lat=&lon=`)
+
+NASA POWER monthly T2M, T2M_MIN, PRECTOTCORR, 2005 to the last full year (no key, cached a day). Compares the first 5 years with the last 5 (annual mean temperature, three warmest months, annual rain, frost months per year) plus a least-squares temperature trend per decade. Rain varies a lot between years, so the answer also names the driest and wettest year. Code: `src/entities/climate/lib/climate-trend.ts`.
