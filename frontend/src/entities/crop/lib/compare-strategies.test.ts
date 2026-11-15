@@ -102,4 +102,27 @@ describe("compareStrategies", () => {
     expect(list.some((s) => s.metrics.riskFlags.some((f) => /heat/.test(f)))).toBe(true);
     expect(byId(list, "current").evidence.some((e) => e.source === "Copernicus Sentinel-2")).toBe(true);
   });
+
+  it("uses NASADEM slope: erosion risk explains Soil-health and warns the others", () => {
+    const terrain = { source: "NASA NASADEM (SRTM, 30 m)", elevationM: 700, slopeMeanPct: 6.2, slopeP90Pct: 9.1, steepShare: 0.6, erosionRisk: "high" as const, pixels: 40,
+      evidence: [{ text: "Average slope 6.2 %", source: "NASA NASADEM (SRTM, 30 m)" }] };
+    const field = fieldEvidence(TEMPERATE, [], [], terrain);
+    const list = compareStrategies(wheatAfterMaize, TEMPERATE, field);
+    expect(byId(list, "soil").why.join(" ")).toMatch(/high erosion risk \(average slope 6\.2 %/);
+    expect(byId(list, "current").checkLocally.join(" ")).toMatch(/High erosion risk on this slope/);
+    expect(byId(list, "soil").checkLocally.join(" ")).not.toMatch(/High erosion risk on this slope/);
+    expect(list.every((s) => s.evidence.some((e) => e.source === "NASA NASADEM (SRTM, 30 m)"))).toBe(true);
+  });
+
+  it("uses the GRACE water trend: explains Water-saving and flags thirsty plans", () => {
+    const water = { source: "NASA/JPL GRACE & GRACE-FO (≈300 km)", start: "2002-04-16", end: "2026-09-16", months: 260, trendCmPerYear: -1.4, earlyCm: 6, lateCm: -24, status: "falling" as const,
+      evidence: [{ text: "Water stored on and under the land in this region fell about 1.4 cm a year", source: "NASA/JPL GRACE & GRACE-FO (≈300 km)" }] };
+    const field = fieldEvidence(DRY_SUMMER, [], [], null, water);
+    const list = compareStrategies(wheatAfterMaize, DRY_SUMMER, field);
+    expect(byId(list, "water").why.join(" ")).toMatch(/falling about 1\.4 cm a year \(NASA GRACE\)/);
+    const current = byId(list, "current"); // maize is a high-water crop
+    expect(current.metrics.riskFlags).toContain("Region: falling water storage");
+    expect(current.checkLocally.join(" ")).toMatch(/irrigation water will still be there/);
+    expect(list.every((s) => s.evidence.some((e) => e.source.startsWith("NASA/JPL GRACE")))).toBe(true);
+  });
 });

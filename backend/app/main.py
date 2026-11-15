@@ -11,6 +11,9 @@ from app.config import Settings, get_settings
 from app.copernicus import CopernicusClient
 from app.errors import install_error_handlers
 from app.fields import router as fields_router
+from app.grace import GraceClient
+from app.terrain import NasademClient
+from app.water import router as water_router
 
 
 @asynccontextmanager
@@ -18,6 +21,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = app.dependency_overrides.get(get_settings, get_settings)()
     app.state.cache = diskcache.Cache(settings.cache_dir)
     app.state.copernicus = CopernicusClient(settings)
+    app.state.nasadem = NasademClient(settings)
+    app.state.grace = GraceClient(settings)
     yield
     app.state.cache.close()
 
@@ -47,9 +52,11 @@ def create_app() -> FastAPI:
             "status": "ok",
             "environment": s.environment,
             "copernicus": "configured" if s.copernicus_configured else "missing",
+            "earthdata": "configured" if s.earthdata_configured else "missing",
         }
 
     api.include_router(fields_router)
+    api.include_router(water_router)
     app.include_router(api)
     return app
 

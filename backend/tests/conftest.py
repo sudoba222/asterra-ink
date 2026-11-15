@@ -7,7 +7,9 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings, get_settings
 from app.copernicus import CopernicusClient
+from app.grace import GraceClient
 from app.main import create_app
+from app.terrain import NasademClient
 
 FIELD = [[68.78, 38.56], [68.79, 38.56], [68.79, 38.57], [68.78, 38.57]]  # ~95 ha near Dushanbe
 
@@ -91,12 +93,15 @@ class FakeCopernicus:
 def make_client(tmp_path) -> Iterator[Callable[..., tuple[TestClient, FakeCopernicus]]]:
     clients: list[TestClient] = []
 
-    def factory(configured: bool = True, **fake_kwargs) -> tuple[TestClient, FakeCopernicus]:
+    def factory(
+        configured: bool = True, earthdata: bool = False, nasadem=None, grace=None, **fake_kwargs
+    ) -> tuple[TestClient, FakeCopernicus]:
         settings = Settings(
             _env_file=None,
             cache_dir=str(tmp_path / "cache"),
             copernicus_client_id="id" if configured else "",
             copernicus_client_secret="secret" if configured else "",
+            earthdata_token="edl-token" if earthdata else "",
         )
         fake = FakeCopernicus(**fake_kwargs)
         app = create_app()
@@ -104,6 +109,10 @@ def make_client(tmp_path) -> Iterator[Callable[..., tuple[TestClient, FakeCopern
         client = TestClient(app, raise_server_exceptions=False)
         client.__enter__()
         app.state.copernicus = CopernicusClient(settings, transport=httpx.MockTransport(fake))
+        if nasadem is not None:
+            app.state.nasadem = NasademClient(settings, transport=httpx.MockTransport(nasadem))
+        if grace is not None:
+            app.state.grace = GraceClient(settings, transport=httpx.MockTransport(grace))
         clients.append(client)
         return client, fake
 

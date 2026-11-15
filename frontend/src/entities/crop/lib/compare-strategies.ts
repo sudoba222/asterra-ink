@@ -217,6 +217,8 @@ function metricsFor(picks: SeasonPick[], seasons: PlannedSeason[], profile: Farm
       if (months.some((m) => cal.dryMonths.includes(m)) && profile.irrigation !== "irrigated" && profile.irrigation !== "both") riskFlags.push(`${name}: dry months`);
     }
   }
+  if (field?.erosionRisk === "high" && bareMonths > 0) riskFlags.push("Field: erosion on bare soil");
+  if (field?.waterTrend === "falling" && needs.includes("high")) riskFlags.push("Region: falling water storage");
   return {
     water: avg === null ? "unknown" : avg <= 1.5 ? "low" : avg <= 2.3 ? "medium" : "high",
     legumeSeasons: picks.filter((p) => historyOption(p.id)?.nitrogen === "fixes").length,
@@ -267,9 +269,13 @@ function textsFor(id: RotationStrategyId, picks: SeasonPick[], seasons: PlannedS
   } else if (id === "water") {
     why.push(`Chooses crops with ${irrigated ? "low or medium" : "low"} water need that still pass the climate checks for your field.`);
     why.push("Changes crop family every season so pests of one crop don't build up.");
+    if (field?.waterTrend === "falling")
+      why.push(`Water stored under the land in your region is falling about ${Math.abs(field.waterTrendCmPerYear ?? 0)} cm a year (NASA GRACE): thirsty crops are riskier in the long term.`);
   } else {
     why.push("Brings in a legume to add nitrogen, and keeps each crop family away until its rest period is over.");
     why.push("Prefers crops with deep roots and a lot of residue, which build soil structure and organic matter.");
+    if (field?.erosionRisk === "moderate" || field?.erosionRisk === "high")
+      why.push(`Your field has ${field.erosionRisk} erosion risk (average slope ${field.slopeMeanPct} %, NASA NASADEM). Roots and residue hold the soil.`);
     if (field?.peakNdvi && field.peakNdvi.value < 0.5 && (field.greenSeasons ?? 0) > 0)
       why.push(`Your field's greenest point in the last 12 months was only NDVI ${field.peakNdvi.value.toFixed(2)}. Weak growth can mean tired soil.`);
   }
@@ -295,6 +301,10 @@ function textsFor(id: RotationStrategyId, picks: SeasonPick[], seasons: PlannedS
     const fresh = seasons.filter((s) => s.cropId !== profile.previousCrops[0] && s.cropId !== profile.previousCrops[1]).map((s) => s.cropName);
     if (fresh.length) checkLocally.push(`Check that seed, equipment and buyers for ${[...new Set(fresh)].join(", ")} are available near you.`);
   }
+  if (id !== "water" && field?.waterTrend === "falling" && seasons.some((s) => historyOption(s.cropId)?.waterNeed === "high"))
+    checkLocally.push("Water storage in your region is falling (NASA GRACE): check that irrigation water will still be there for high-water crops.");
+  if (id !== "soil" && field?.erosionRisk === "high")
+    checkLocally.push(`High erosion risk on this slope (${field.slopeMeanPct} % on average): bare soil between crops can wash away. Keep residue or a cover crop.`);
   if (profile.issues.includes("erosion")) checkLocally.push("You reported erosion: on slopes, plant across the slope and keep residue on the field.");
   checkLocally.push("Crop ranges are indicative (FAO ECOCROP), not checked for your district. Ask a local agronomist.");
 

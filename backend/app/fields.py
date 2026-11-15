@@ -1,7 +1,9 @@
 """Field endpoints."""
 
+import asyncio
 import hashlib
 import json
+import math
 from datetime import date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
@@ -10,7 +12,9 @@ from app.config import Settings, get_settings
 from app.copernicus import CopernicusClient
 from app.errors import ApiError
 from app.geometry import area_hectares
-from app.schemas import NdviPoint, NdviRequest, NdviResponse
+from app.schemas import FieldPolygon, NdviPoint, NdviRequest, NdviResponse, TerrainResponse
+from app.terrain import SOURCE as TERRAIN_SOURCE
+from app.terrain import NasademClient, compute_terrain, read_window, terrain_evidence, tile_name
 
 router = APIRouter(prefix="/fields", tags=["fields"])
 
@@ -19,6 +23,10 @@ SOURCE = "Copernicus Sentinel-2 L2A (ESA), Copernicus Data Space Ecosystem Stati
 
 def get_copernicus(request: Request) -> CopernicusClient:
     return request.app.state.copernicus
+
+
+def get_nasadem(request: Request) -> NasademClient:
+    return request.app.state.nasadem
 
 
 def _cache_key(body: NdviRequest) -> str:
@@ -100,3 +108,48 @@ async def field_ndvi(
         interval_days=body.interval_days,
         series=to_series(raw),
     )
+
+
+@router.post("/terrain", response_model=TerrainResponse)
+async def field_terrain(
+    body: FieldPolygon,
+    request: Request,
+    settings: Settings = Depends(get_settings),
+    nasadem: NasademClient = Depends(get_nasadem),
+) -> TerrainResponse:
+    """Slope, height and water-erosion risk of the field from NASA NASADEM (30 m).
+
+    Erosion risk (indicative): high if mean slope ≥ 5 % or ≥ 30 % of the field is steeper than 5 %;
+    moderate if mean slope ≥ 2 % or ≥ 10 % is steeper than 5 %; low otherwise.
+    """
+    area = area_hectares(body.polygon)
+    if area > settings.max_field_hectares:
+        raise ApiError(
+            422,
+            "FIELD_TOO_LARGE",
+            f"The field is {area:,.0f} ha; the limit is {settings.max_field_hectares:,.0f} ha.",
+        )
+    key = (
+        "terrain:"
+        + hashlib.sha256(
+            json.dumps([[round(x, 6), round(y, 6)] for x, y in body.polygon]).encode()
+        ).hexdigest()
+    )
+    cache = request.app.state.cache
+    cached = cache.get(key)
+    if cached is None:
+        lons = [p[0] for p in body.polygon]
+        lats = [p[1] for p in body.polygon]
+        clat, clon = (min(lats) + max(lats)) / 2, (min(lons) + max(lons)) / 2
+        path = await nasadem.tile_path(tile_name(clat, clon))
+        if path is None:
+            raise ApiError(404, "NO_ELEVATION_DATA", "NASA has no elevation data here (open water?).")
+        window = await asyncio.to_thread(
+            read_window, path, math.floor(clat), math.floor(clon), min(lons), min(lats), max(lons), max(lats)
+        )
+        terrain = compute_terrain(window, body.polygon)
+        if terrain is None:
+            raise ApiError(404, "NO_ELEVATION_DATA", "No valid elevation pixels under this field.")
+        cached = {**terrain.__dict__, "evidence": terrain_evidence(terrain)}
+        cache.set(key, cached, expire=settings.cache_ttl_seconds * 30)
+    return TerrainResponse(source=TERRAIN_SOURCE, **cached)
