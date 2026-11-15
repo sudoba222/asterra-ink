@@ -118,3 +118,7 @@ Each plan returns why / evidence (with source) / benefits / what we don't know /
 ## 20-year climate trend (`GET /api/climate-trend?lat=&lon=`)
 
 NASA POWER monthly T2M, T2M_MIN, PRECTOTCORR, 2005 to the last full year (no key, cached a day). Compares the first 5 years with the last 5 (annual mean temperature, three warmest months, annual rain, frost months per year) plus a least-squares temperature trend per decade. Rain varies a lot between years, so the answer also names the driest and wettest year. Code: `src/entities/climate/lib/climate-trend.ts`.
+
+## NASA SMAP soil moisture as evidence (`GET /api/smap?lat=&lon=`)
+
+SMAP L4 analyzed root-zone soil moisture (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`, 9 km, daily) read from NASA GIBS paletted tiles through the official colormap (`SMAP_Analyzed_Soil_Moisture.xml`, m³/m³), same method as the MODIS NDVI reader. No key. Latest day plus the same day a year earlier; GIBS has gaps (e.g. 10 Oct–11 Dec 2025), so the nearest available day within ±5 weeks is used and its date is shown. Rule: a change of 10 % or more is "drier" / "wetter". Answers `{ now, lastYear, evidence }`; pass `evidence` to `fieldEvidence(ctx, ndvi, [...trend.evidence, ...smap.evidence])`. Code: `src/shared/api/nasa/gibs-smap.ts`, `src/entities/climate/lib/smap-evidence.ts`.
