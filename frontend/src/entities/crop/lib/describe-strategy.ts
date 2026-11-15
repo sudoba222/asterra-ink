@@ -37,7 +37,12 @@ export function seasonWindow(s: PlannedSeason): SeasonWindow {
   return { plant: monthName(s.plantMonth - 1), harvest: monthName(s.harvestMonth - 1), year: Math.floor(s.startOffset / 12) + 1 };
 }
 
-const seasonLength = (s: PlannedSeason) => ((s.harvestMonth - s.plantMonth + 12) % 12) + 1;
+const seasonLength = (s: Pick<PlannedSeason, "plantMonth" | "harvestMonth">) => ((s.harvestMonth - s.plantMonth + 12) % 12) + 1;
+
+/** Calendar months (1–12) the crop is in the ground, planting to harvest; wraps over New Year (Nov → Feb = 11, 12, 1, 2). */
+export function monthsInGround(s: Pick<PlannedSeason, "plantMonth" | "harvestMonth">): number[] {
+  return Array.from({ length: seasonLength(s) }, (_, k) => ((s.plantMonth - 1 + k) % 12) + 1);
+}
 
 /** Months the field stands bare between season `i` and the next one (0 for the last season). */
 export function bareMonthsAfter(seasons: PlannedSeason[], i: number): number {

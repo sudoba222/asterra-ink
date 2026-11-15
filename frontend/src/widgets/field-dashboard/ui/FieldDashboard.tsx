@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatHectares, placeLabel, type Field } from "@/entities/field";
 import { shortDate, type FieldConditionsState } from "@/entities/field-conditions";
+import type { NdviHistoryState } from "@/entities/ndvi-history";
 import { Skeleton, StateMessage } from "@/shared/ui";
 import { MoreDetails } from "./MoreDetails";
 import { RecommendationCard } from "./RecommendationCard";
@@ -15,6 +16,8 @@ interface Props {
   field: Field;
   /** From `useFieldConditions(field.polygon)`, owned by the page so the PDF report shares it. */
   conditions: FieldConditionsState;
+  /** From `useNdviHistory(field.polygon)`, owned by the page so the rotation strategies share it. */
+  ndvi: NdviHistoryState;
   plan: ReactNode;
   /**
    * Land check notice for land that can't be farmed. When set it replaces the smart
@@ -26,7 +29,7 @@ interface Props {
 }
 
 /** The simple farmer view: one recommendation, four cards, everything else in "More details". */
-export function FieldDashboard({ field, conditions, plan, landNotice, footer }: Props) {
+export function FieldDashboard({ field, conditions, ndvi, plan, landNotice, footer }: Props) {
   const { status, data, error, retry } = conditions;
   const place = placeLabel(field);
 
@@ -85,7 +88,7 @@ export function FieldDashboard({ field, conditions, plan, landNotice, footer }: 
             )}
           </div>
 
-          <MoreDetails field={field} data={data} plan={plan} />
+          <MoreDetails field={field} data={data} ndvi={ndvi} plan={plan} />
           {footer}
         </div>
       </div>

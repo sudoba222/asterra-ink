@@ -38,3 +38,34 @@ export function useFetchJson<T>(url: string | null): FetchState<T> & { retry: ()
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
   return { ...state, retry };
 }
+
+/**
+ * POST counterpart of `useFetchJson`: sends `body` as JSON. `body = null` disables it.
+ * The request is keyed by the body's JSON, so a new object with the same content doesn't refetch.
+ */
+export function usePostJson<T>(url: string, body: unknown): FetchState<T> & { retry: () => void } {
+  const [state, setState] = useState<FetchState<T>>({ status: "idle", data: null, error: null });
+  const [attempt, setAttempt] = useState(0);
+  const key = body == null ? null : JSON.stringify(body);
+
+  useEffect(() => {
+    if (key === null) return;
+    const ctrl = new AbortController();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- start of an external request
+    setState((s) => ({ status: "loading", data: s.data, error: null }));
+    fetch(url, { method: "POST", signal: ctrl.signal, headers: { accept: "application/json", "content-type": "application/json" }, body: key })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await readApiError(res));
+        return res.json() as Promise<T>;
+      })
+      .then((data) => setState({ status: "success", data, error: null }))
+      .catch((error: unknown) => {
+        if (ctrl.signal.aborted) return;
+        setState((s) => ({ status: "error", data: s.data, error: error instanceof Error ? error : new Error(String(error)) }));
+      });
+    return () => ctrl.abort();
+  }, [url, key, attempt]);
+
+  const retry = useCallback(() => setAttempt((a) => a + 1), []);
+  return { ...state, retry };
+}
