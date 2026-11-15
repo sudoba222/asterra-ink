@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { fieldRepository, formatHectares, toGeoJsonFeature, type Field } from "@/entities/field";
 import { shortDate, type FieldConditions } from "@/entities/field-conditions";
+import { NdviHistoryChart } from "@/entities/ndvi-history";
 import { useFieldDraft } from "@/features/draw-field";
 import { cn, formatCoord } from "@/shared/lib";
 import { RecentWeather } from "./RecentWeather";
@@ -27,6 +28,9 @@ export function MoreDetails({ field, data, plan }: { field: Field; data: FieldCo
         </Item>
         <Item id="crop" title="Crop health from space" open={open} onToggle={toggle}>
           {data ? <CropDetails data={data} /> : <Loading />}
+          <div className="mt-5 border-t border-line pt-4">
+            <NdviHistoryChart polygon={field.polygon} />
+          </div>
         </Item>
         <Item id="plan" title="Plan your next crop" open={open} onToggle={toggle}>
           {open === "plan" && plan}
@@ -164,6 +168,13 @@ function FieldInfo({ field, data }: { field: Field; data: FieldConditions | null
               </span>
             </li>
           ))}
+          <li className="flex gap-2">
+            <span className="mt-1.5 size-2 shrink-0 rounded-full bg-good" aria-hidden />
+            <span>
+              <span className="font-medium">Crop history: Copernicus Sentinel-2 L2A (ESA)</span>
+              <span className="block text-[12px] text-ink-muted">10 m NDVI for the last 12 months, cloudy pixels removed, via the ASTERRA API (Copernicus Data Space Ecosystem).</span>
+            </span>
+          </li>
           <li className="flex gap-2">
             <span className="mt-1.5 size-2 shrink-0 rounded-full bg-good" aria-hidden />
             <span>
