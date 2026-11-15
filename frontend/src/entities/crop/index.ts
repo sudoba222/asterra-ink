@@ -5,3 +5,5 @@ export * from "./lib/rotation-engine";
 export * from "./lib/land-gate";
 export * from "./lib/field-calendar";
 export * from "./lib/compare-strategies";
+export * from "./lib/describe-strategy";
+export * from "./lib/strategy-comparison-source";

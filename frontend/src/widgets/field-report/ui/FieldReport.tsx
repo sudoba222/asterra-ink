@@ -2,7 +2,24 @@
 
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { CATALOG_VERSION, WEIGHTS, describeProfile, type CandidateResult, type CheckKind, type CropPlanResult, type FarmerProfile } from "@/entities/crop";
+import {
+  CATALOG_VERSION,
+  CONFIDENCE_LABEL,
+  STRATEGY_PURPOSE,
+  WEIGHTS,
+  bareMonthsAfter,
+  comparisonRows,
+  confidenceExplanation,
+  describeProfile,
+  seasonWindow,
+  type CandidateResult,
+  type CheckKind,
+  type CropPlanResult,
+  type FarmerProfile,
+  type RotationStrategy,
+  type Signal,
+  type StrategyComparison,
+} from "@/entities/crop";
 import { formatHectares, placeLabel, ringToSvgPath, type Field } from "@/entities/field";
 import { shortDate, summariseHistory, type CardState, type FieldConditions, type Level } from "@/entities/field-conditions";
 import type { LandSuitability } from "@/entities/land-suitability";
@@ -18,6 +35,8 @@ interface Props {
   /** Crop plan after the land check; `status: "unsuitable_land"` means no crops are recommended. */
   rotation: CropPlanResult | null;
   rotationError: string | null;
+  /** The three rotation strategies shown under the questionnaire (null when there's no crop plan). */
+  strategies: StrategyComparison | null;
   /** Land check result (null while unknown or if the check failed). */
   land: LandSuitability | null;
   photo: FieldPhoto;
@@ -46,6 +65,9 @@ const STATUS_WORD: Record<CandidateResult["status"], string> = {
 
 const TOP_EXPLAINED = 3;
 
+const SIGNAL_COLOR: Record<Signal, string> = { good: "#2F8A4E", watch: "#B7791F", concern: "#C2410C", unknown: "#A3ADA4" };
+const CONFIDENCE_COLOR: Record<RotationStrategy["confidence"], string> = { high: "#2F8A4E", medium: "#B7791F", low: "#C2410C" };
+
 const noop = () => () => {};
 const useIsClient = () =>
   useSyncExternalStore(
@@ -73,7 +95,7 @@ export function FieldReport(props: Props) {
   );
 }
 
-function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, land, photo }: Props) {
+function ReportBody({ field, conditions, conditionsError, farmer, rotation, rotationError, strategies, land, photo }: Props) {
   const [printedAt, setPrintedAt] = useState(() => new Date());
   useEffect(() => {
     const onBefore = () => setPrintedAt(new Date());
@@ -81,6 +103,7 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
     return () => window.removeEventListener("beforeprint", onBefore);
   }, []);
   const place = placeLabel(field);
+  const planN = conditions ? 4 : 3;
 
   return (
     <article>
@@ -181,11 +204,17 @@ function ReportBody({ field, conditions, conditionsError, farmer, rotation, rota
         </Section>
       )}
 
-      <Section n={conditions ? 4 : 3} title="Crop plan" flow>
+      <Section n={planN} title="Crop plan" flow>
         <CropPlan farmer={farmer} rotation={rotation} rotationError={rotationError} />
       </Section>
 
-      <Section n={conditions ? 5 : 4} title="Data sources">
+      {strategies && (
+        <Section n={planN + 1} title="Rotation strategies: next 3 seasons" flow pageBreak>
+          <RotationStrategies comparison={strategies} />
+        </Section>
+      )}
+
+      <Section n={planN + (strategies ? 2 : 1)} title="Data sources">
         <ul className="space-y-0.5">
           {[...(conditions?.sources ?? []), ...(land?.sources ?? [])].map((s) => (
             <li key={s.id}>
@@ -271,10 +300,10 @@ function FieldPhotoFigure({ field, photo }: { field: Field; photo: FieldPhoto })
   );
 }
 
-/** `flow` lets a long section run across pages (its inner blocks still avoid splitting). */
-function Section({ n, title, children, flow }: { n: number; title: string; children: ReactNode; flow?: boolean }) {
+/** `flow` lets a long section run across pages (its inner blocks still avoid splitting); `pageBreak` starts it on a new page. */
+function Section({ n, title, children, flow, pageBreak }: { n: number; title: string; children: ReactNode; flow?: boolean; pageBreak?: boolean }) {
   return (
-    <section className={flow ? "mt-5" : "mt-5 break-inside-avoid"}>
+    <section className={`${flow ? "mt-5" : "mt-5 break-inside-avoid"} ${pageBreak ? "break-before-page" : ""}`}>
       <h2 className="mb-2 flex break-after-avoid items-baseline gap-2 border-b border-[#D5DDD2] pb-1 text-[12.5px] font-semibold text-[#173E32]">
         <span className="text-[10px] text-[#A3ADA4]">{String(n).padStart(2, "0")}</span>
         {title}
@@ -523,6 +552,136 @@ function Checks({ checks }: { checks: CandidateResult["checks"] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Same strategies and comparison as the on-screen section, laid out for A4. */
+function RotationStrategies({ comparison }: { comparison: StrategyComparison }) {
+  const { strategies, illustrative } = comparison;
+  const rows = comparisonRows(strategies);
+  const titleWidth = `${Math.floor(78 / Math.max(1, strategies.length))}%`;
+  return (
+    <div className="space-y-3">
+      {illustrative && (
+        <p className="break-inside-avoid rounded-md border border-[#F0DDBD] bg-[#FBF5EA] px-3 py-2 text-[#6B4A12]">
+          <b className="font-semibold">Sample plans, for illustration only.</b> These three rotations use example data, not this field’s data, and don’t change
+          with the answers above. Don’t plan a season from them.
+        </p>
+      )}
+
+      {strategies.map((s) => (
+        <StrategyBlock key={s.id} s={s} />
+      ))}
+
+      <div className="break-inside-avoid">
+        <p className="mb-1 font-semibold">Side by side</p>
+        <Table head={["Criterion", ...strategies.map((s) => (s.fitsGoal ? `${s.title} ✓ fits goal` : s.title))]} widths={["22%", ...strategies.map(() => titleWidth)]}>
+          {rows.map((r) => (
+            <tr key={r.id} className="break-inside-avoid">
+              <Td>
+                <b className="font-semibold">{r.criterion}</b>
+                <span className="block text-[8.5px] text-[#5F6B60]">{r.hint}</span>
+              </Td>
+              {r.cells.map((c, i) => (
+                <Td key={strategies[i].id} className={strategies[i].fitsGoal ? "bg-[#F5FAEC]" : undefined}>
+                  {c ? (
+                    <>
+                      <span className="font-semibold">
+                        <Dot color={SIGNAL_COLOR[c.signal]} />
+                        {c.label}
+                      </span>
+                      <span className="block text-[#5F6B60]">{c.detail}</span>
+                    </>
+                  ) : (
+                    <span className="text-[#5F6B60]">Not available</span>
+                  )}
+                </Td>
+              ))}
+            </tr>
+          ))}
+        </Table>
+        <p className="mt-1 text-[8.5px] text-[#5F6B60]">Green is better, amber means watch, orange means a concern.</p>
+      </div>
+    </div>
+  );
+}
+
+function StrategyBlock({ s }: { s: RotationStrategy }) {
+  return (
+    <div className="break-inside-avoid rounded-lg border px-3 py-2.5" style={{ borderColor: s.fitsGoal ? "#173E32" : "#D5DDD2", borderWidth: s.fitsGoal ? 1.5 : 1 }}>
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-[12.5px] font-semibold">
+          {s.title}
+          {s.fitsGoal && <span className="ml-2 rounded-full bg-[#C5E58A] px-2 py-0.5 align-middle text-[8.5px] font-semibold text-[#10251E]">Fits your goal</span>}
+        </p>
+        <p className="shrink-0 text-[9.5px] font-semibold">
+          <Dot color={CONFIDENCE_COLOR[s.confidence]} />
+          {CONFIDENCE_LABEL[s.confidence]}
+        </p>
+      </div>
+      <p className="text-[#5F6B60]">{STRATEGY_PURPOSE[s.id]}</p>
+      <p className="mt-0.5 text-[9.5px] text-[#5F6B60]">
+        <b className="font-semibold">Confidence:</b> {confidenceExplanation(s)}
+      </p>
+
+      {s.available ? (
+        <>
+          <div className="mt-2">
+            <Table head={["Season", "Crop", "Plant", "Harvest", "Note"]} widths={["13%", "27%", "12%", "12%", "36%"]}>
+              {s.seasons.map((x, i) => {
+                const w = seasonWindow(x);
+                const bare = bareMonthsAfter(s.seasons, i);
+                const notes = [x.status === "caution" ? "Possible, with cautions" : "", bare ? `then ${bare} month${bare === 1 ? "" : "s"} bare` : ""].filter(Boolean);
+                return (
+                  <tr key={`${x.cropId}-${x.startOffset}`}>
+                    <Td className="font-mono">
+                      {i + 1} <span className="text-[#A3ADA4]">· yr {w.year}</span>
+                    </Td>
+                    <Td className="font-semibold">{x.cropName}</Td>
+                    <Td>{w.plant}</Td>
+                    <Td>{w.harvest}</Td>
+                    <Td className="text-[#5F6B60]">{notes.join(", ") || "—"}</Td>
+                  </tr>
+                );
+              })}
+            </Table>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-x-5 gap-y-2">
+            <InfoList title="Why suggested" items={s.why} />
+            <InfoList title="Evidence" items={s.evidence.map((e) => `${e.text} (${e.source})`)} />
+            <InfoList title="Benefits" items={s.benefits} />
+            <InfoList title="What we don’t know" items={s.gaps} />
+            <InfoList title="Check locally" items={s.checkLocally} box />
+          </div>
+        </>
+      ) : (
+        <div className="mt-2">
+          <Unavailable>{s.unavailableReason ?? "This plan can’t be built for this field."}</Unavailable>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InfoList({ title, items, box }: { title: string; items: string[]; box?: boolean }) {
+  return (
+    <div className="break-inside-avoid">
+      <p className="mb-0.5 text-[9px] font-semibold tracking-wide text-[#173E32] uppercase">{title}</p>
+      {items.length ? (
+        <ul className="space-y-0.5">
+          {items.map((t) => (
+            <li key={t} className="flex gap-1.5">
+              <span className="w-2.5 shrink-0 text-center text-[#5F6B60]" aria-hidden>
+                {box ? "☐" : "•"}
+              </span>
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-[#5F6B60]">Nothing to add here.</p>
+      )}
+    </div>
   );
 }
 
